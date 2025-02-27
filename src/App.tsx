@@ -1,14 +1,13 @@
-import { Route, Routes } from 'react-router-dom'
-import { Container, CssBaseline } from '@mui/material'
-import HomePage from './components/HomePage'
-import TopBar from './components/TopBar'
-import ProfilePage from './components/ProfilePage'
-import './App.css'
+import { Route, Routes } from 'react-router-dom';
+import { Container, CssBaseline } from '@mui/material';
+import HomePage from './pages/HomePage';
+import TopBar from './components/TopBar';
+import ProfilePage from './pages/ProfilePage';
+import './App.css';
 
 function App() {
-
   return (
-   <>
+    <>
       <CssBaseline enableColorScheme />
 
       <TopBar />
@@ -20,10 +19,10 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
-        </Routes>        
+        </Routes>
       </Container>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
