@@ -1,10 +1,10 @@
 import { createTheme } from '@mui/material/styles';
-import { grey, purple,lime } from '@mui/material/colors';
+import { grey, deepPurple,lime } from '@mui/material/colors';
 
 // Define your color palette here
 const theme = createTheme({
   palette: {
-    primary: purple,
+    primary: deepPurple,
     secondary: lime,
     background: {
       default: grey[100], // Default background color

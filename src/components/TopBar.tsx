@@ -1,16 +1,19 @@
-import * as React from 'react';
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { alpha, styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import Drawer from '@mui/material/Drawer';
-import { AccountCircle, Menu , CloseRounded} from '@mui/icons-material';
-
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Button,
+  Drawer,
+  Box,
+  Typography,
+  Container,
+  Divider,
+  MenuItem,
+} from '@mui/material';
+import { AccountCircle, Menu, CloseRounded, Home } from '@mui/icons-material';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -20,14 +23,15 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   borderRadius: `16px`,
   backdropFilter: 'blur(24px)',
   border: '1px solid',
-  borderColor: (theme).palette.divider,
+  borderColor: theme.palette.divider,
   backgroundColor: alpha(theme.palette.background.default, 0.4),
-  boxShadow: 'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px',
+  boxShadow:
+    'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px',
   padding: '8px 12px',
 }));
 
 export default function TopBar() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
@@ -46,32 +50,43 @@ export default function TopBar() {
     >
       <Container maxWidth="lg">
         <StyledToolbar variant="dense" disableGutters>
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', px: 0 }}>
             <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-              <Button variant="text"  size="small">
-                Home
-              </Button>
-              <Button variant="text"  size="small">
+              <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
+                <Home />
+              </IconButton>
+              <Button variant="text" size="medium">
                 Upload
               </Button>
-             
             </Box>
           </Box>
+
           <Box
             sx={{
+              textAlign: { xs: 'left', md: 'center' },
+              flexGrow: { xs: 1, md: 0 },
+            }}
+          >
+            <Typography variant="h6" fontWeight={600} color="primary">
+              Foodie Finder
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              flex: 1,
               display: { xs: 'none', md: 'flex' },
+              justifyContent: 'flex-end',
               gap: 1,
               alignItems: 'center',
             }}
           >
-         
-            <IconButton color='primary' aria-label="Profile" >
-              <AccountCircle/>
+            <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
+              <AccountCircle />
             </IconButton>
-           
           </Box>
+
           <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
-            
             <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
               <Menu />
             </IconButton>
@@ -96,11 +111,21 @@ export default function TopBar() {
                     <CloseRounded />
                   </IconButton>
                 </Box>
-                <MenuItem>Home</MenuItem>
-                <MenuItem>Uploade</MenuItem>
+                <MenuItem component={RouterLink} to="/">
+                  Home
+                </MenuItem>
+                <MenuItem component={RouterLink} to="/upload">
+                  Upload
+                </MenuItem>
                 <Divider sx={{ my: 3 }} />
                 <MenuItem>
-                  <Button color="primary" variant="contained" fullWidth>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    fullWidth
+                    component={RouterLink}
+                    to="/profile"
+                  >
                     Profile
                   </Button>
                 </MenuItem>
