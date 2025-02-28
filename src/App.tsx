@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { Container, CssBaseline } from '@mui/material';
+import { Box, CircularProgress, Container, CssBaseline } from '@mui/material';
 import Login from './components/Login';
 import HomePage from './components/HomePage';
 import TopBar from './components/TopBar';
@@ -10,6 +10,8 @@ import { AxiosError, HttpStatusCode } from 'axios';
 
 const App = () => {
   const [user, setUser] = useState<IUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const navigate = useNavigate();
 
   const storeUserSession = (userData: {
@@ -22,6 +24,7 @@ const App = () => {
     localStorage.setItem('userId', user._id);
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
+    setIsLoading(false);
   };
 
   const clearUserSession = () => {
@@ -30,6 +33,7 @@ const App = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     navigate('/login', { replace: true });
+    setIsLoading(false);
   };
 
   const handleLoginSuccess = (userData: {
@@ -47,16 +51,17 @@ const App = () => {
       const accessToken = localStorage.getItem('accessToken');
       const refreshToken = localStorage.getItem('refreshToken');
 
-      if (!storedUserId || !accessToken) return;
+      if (!storedUserId || !accessToken) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
-        const { response } = await userService.getUserById(
-          storedUserId,
-          accessToken,
-        );
+        const { response } = await userService.getUserById(storedUserId, accessToken);
 
         if (response.status === HttpStatusCode.Ok) {
           setUser(response.data);
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -66,15 +71,13 @@ const App = () => {
           refreshToken
         ) {
           try {
-            const { response: refreshResponse } =
-              await userService.refresh(refreshToken);
+            const { response: refreshResponse } = await userService.refresh(refreshToken);
             if (refreshResponse.status === HttpStatusCode.Ok) {
               storeUserSession(refreshResponse.data);
             } else {
               clearUserSession();
             }
-          } catch (refreshError) {
-            console.error('Error refreshing token:', refreshError);
+          } catch {
             clearUserSession();
           }
         } else {
@@ -95,28 +98,38 @@ const App = () => {
         component="main"
         sx={{ display: 'flex', flexDirection: 'column', my: 16, gap: 4 }}
       >
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              user ? (
-                <Navigate to="/" replace />
-              ) : (
-                <Login handleLoginSuccess={handleLoginSuccess} />
-              )
-            }
-          />
-          <Route
-            path="/"
-            element={
-              user ? <HomePage user={user} /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/profile"
-            element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
-          />
-        </Routes>
+        {isLoading ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                user ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <Login handleLoginSuccess={handleLoginSuccess} />
+                )
+              }
+            />
+            <Route
+              path="/"
+              element={user ? <HomePage user={user} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/profile"
+              element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
+            />
+          </Routes>
+        )}
       </Container>
     </>
   );

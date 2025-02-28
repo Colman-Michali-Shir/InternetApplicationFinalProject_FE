@@ -105,7 +105,7 @@ const Login: FC<{
 
   return (
     <Container maxWidth="sm">
-      <Card elevation={6} sx={{ mt: 8, p: 4, textAlign: 'center' }}>
+      <Card elevation={6} sx={{ mt: 8, p: 4, textAlign: 'center', borderRadius: '12px' }}>
         <CardContent>
           <Typography variant="h5" fontWeight="bold" gutterBottom>
             {isLogin ? 'Login' : 'Register'}

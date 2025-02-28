@@ -61,6 +61,7 @@ const refresh = async (refreshToken: string) => {
 
 const getUserById = async (userId: string, accessToken: string) => {
   const abortController = new AbortController();
+
   const response = await apiClient.get(`/users/${userId}`, {
     signal: abortController.signal,
     headers: {
