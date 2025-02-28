@@ -50,7 +50,10 @@ const App = () => {
       if (!storedUserId || !accessToken) return;
 
       try {
-        const { response } = await userService.getUserById(storedUserId, accessToken);
+        const { response } = await userService.getUserById(
+          storedUserId,
+          accessToken,
+        );
 
         if (response.status === HttpStatusCode.Ok) {
           setUser(response.data);
@@ -63,7 +66,8 @@ const App = () => {
           refreshToken
         ) {
           try {
-            const { response: refreshResponse } = await userService.refresh(refreshToken);
+            const { response: refreshResponse } =
+              await userService.refresh(refreshToken);
             if (refreshResponse.status === HttpStatusCode.Ok) {
               storeUserSession(refreshResponse.data);
             } else {
@@ -95,12 +99,18 @@ const App = () => {
           <Route
             path="/login"
             element={
-              user ? <Navigate to="/" replace /> : <Login handleLoginSuccess={handleLoginSuccess} />
+              user ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Login handleLoginSuccess={handleLoginSuccess} />
+              )
             }
           />
           <Route
             path="/"
-            element={user ? <HomePage user={user} /> : <Navigate to="/login" replace />}
+            element={
+              user ? <HomePage user={user} /> : <Navigate to="/login" replace />
+            }
           />
           <Route
             path="/profile"
