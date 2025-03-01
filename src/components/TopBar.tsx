@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
 import { IUser } from '../services/userService';
+import PostUploadModal from './PostUploadModal';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -32,11 +33,16 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: () => void }) {
-  const [open, setOpen] = useState(false);
+const TopBar = ({ user, logoutUser }: { user: IUser; logoutUser: () => void }) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
+    setIsDrawerOpen(newOpen);
+  };
+
+  const togglePostUploadModal = (newOpen: boolean) => () => {
+    setIsPostUploadModalOpen(newOpen);
   };
 
   const handleLogout = () => {
@@ -45,7 +51,10 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
     localStorage.removeItem('accessToken');
     logoutUser();
   };
-
+  const handleUpload = () => {
+    setIsDrawerOpen(false);
+    setIsPostUploadModalOpen(true);
+  };
   return (
     <AppBar
       position="fixed"
@@ -73,9 +82,13 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
               <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
                 <Home />
               </IconButton>
-              <Button variant="text" size="medium">
+              <Button variant="text" size="medium" onClick={togglePostUploadModal(true)}>
                 Upload
               </Button>
+              <PostUploadModal
+                open={isPostUploadModalOpen}
+                handleClose={togglePostUploadModal(false)}
+              ></PostUploadModal>
             </Box>
           </Box>
 
@@ -114,7 +127,7 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
             </IconButton>
             <Drawer
               anchor="top"
-              open={open}
+              open={isDrawerOpen}
               onClose={toggleDrawer(false)}
               PaperProps={{
                 sx: {
@@ -137,9 +150,7 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
                 <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
                   Home
                 </MenuItem>
-                <MenuItem component={RouterLink} to="/upload" onClick={toggleDrawer(false)}>
-                  Upload
-                </MenuItem>
+                <MenuItem onClick={handleUpload}>Upload</MenuItem>
                 <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
                   Logout
                 </MenuItem>
@@ -162,4 +173,6 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
       </Container>
     </AppBar>
   );
-}
+};
+
+export default TopBar;
