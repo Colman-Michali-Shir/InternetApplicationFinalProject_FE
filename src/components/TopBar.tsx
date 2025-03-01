@@ -12,8 +12,10 @@ import {
   Container,
   Divider,
   MenuItem,
+  Avatar,
 } from '@mui/material';
-import { AccountCircle, Menu, CloseRounded, Home } from '@mui/icons-material';
+import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
+import { IUser } from '../services/userService';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -30,11 +32,18 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-export default function TopBar() {
+export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: () => void }) {
   const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('accessToken');
+    logoutUser();
   };
 
   return (
@@ -52,6 +61,15 @@ export default function TopBar() {
         <StyledToolbar variant="dense" disableGutters>
           <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', px: 0 }}>
             <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+              <IconButton
+                onClick={handleLogout}
+                color="primary"
+                aria-label="Logout"
+                component={RouterLink}
+                to="/login"
+              >
+                <Logout />
+              </IconButton>
               <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
                 <Home />
               </IconButton>
@@ -82,7 +100,11 @@ export default function TopBar() {
             }}
           >
             <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
-              <AccountCircle />
+              {user.profileImage ? (
+                <Avatar src={user.profileImage} alt="Profile" sx={{ width: 25, height: 25 }} />
+              ) : (
+                <AccountCircle />
+              )}
             </IconButton>
           </Box>
 
@@ -111,11 +133,15 @@ export default function TopBar() {
                     <CloseRounded />
                   </IconButton>
                 </Box>
-                <MenuItem component={RouterLink} to="/">
+
+                <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
                   Home
                 </MenuItem>
-                <MenuItem component={RouterLink} to="/upload">
+                <MenuItem component={RouterLink} to="/upload" onClick={toggleDrawer(false)}>
                   Upload
+                </MenuItem>
+                <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
+                  Logout
                 </MenuItem>
                 <Divider sx={{ my: 3 }} />
                 <MenuItem>

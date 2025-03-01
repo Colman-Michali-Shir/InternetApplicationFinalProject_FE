@@ -1,10 +1,7 @@
+import { IUser } from '../services/userService';
 
-const HomePage = () => {
-  return (
-    <div>
-      home page
-    </div>
-  );
-}
+const HomePage = ({ user }: { user: IUser }) => {
+  return <div>Welcome, {user?.username}</div>;
+};
 
 export default HomePage;
