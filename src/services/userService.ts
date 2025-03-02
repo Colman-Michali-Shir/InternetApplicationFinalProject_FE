@@ -10,6 +10,8 @@ export interface IUser {
   profileImage?: string;
 }
 
+const accessToken = localStorage.getItem('accessToken');
+
 const uploadImage = async (img: File) => {
   const abortController = new AbortController();
 
@@ -71,11 +73,43 @@ const getUserById = async (userId: string, accessToken: string) => {
   return { response, abort: () => abortController.abort() };
 };
 
+const updateUsername = async (userId: string, username: string) => {
+  const abortController = new AbortController();
+  const response = await apiClient.put(
+    `/users/${userId}`,
+    { username },
+    {
+      signal: abortController.signal,
+      headers: {
+        Authorization: `JWT ${accessToken}`,
+      },
+    },
+  );
+  return { response, abort: () => abortController.abort() };
+};
+
+const updateProfileImage = async (userId: string, profileImage: string) => {
+  const abortController = new AbortController();
+  const response = await apiClient.put(
+    `/users/${userId}`,
+    { profileImage },
+    {
+      signal: abortController.signal,
+      headers: {
+        Authorization: `JWT ${accessToken}`,
+      },
+    },
+  );
+  return { response, abort: () => abortController.abort() };
+};
+
 export default {
   register,
   googleLogin,
   uploadImage,
   getUserById,
+  updateUsername,
+  updateProfileImage,
   loginWithUsernameAndPassword,
   refresh,
 };

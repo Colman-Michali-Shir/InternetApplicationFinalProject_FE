@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { AxiosError, HttpStatusCode } from 'axios';
 import { Box, CircularProgress, Container, CssBaseline } from '@mui/material';
 import Login from './pages/Login';
 import HomePage from './pages/HomePage';
 import TopBar from './components/TopBar';
 import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
-import { AxiosError, HttpStatusCode } from 'axios';
+import { useUserContext } from './UserContext';
 
 const App = () => {
+  const { setUserContext } = useUserContext();
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,6 +22,11 @@ const App = () => {
     user: IUser;
   }) => {
     const { user, accessToken, refreshToken } = userData;
+    setUserContext({
+      username: user.username,
+      _id: user._id,
+      profileImage: user.profileImage,
+    });
     setUser(user);
     localStorage.setItem('userId', user._id);
     localStorage.setItem('accessToken', accessToken);
@@ -28,6 +35,7 @@ const App = () => {
   };
 
   const clearUserSession = () => {
+    setUserContext(null);
     setUser(null);
     localStorage.removeItem('userId');
     localStorage.removeItem('accessToken');
@@ -60,6 +68,11 @@ const App = () => {
         const { response } = await userService.getUserById(storedUserId, accessToken);
 
         if (response.status === HttpStatusCode.Ok) {
+          setUserContext({
+            username: response.data.username,
+            _id: response.data._id,
+            profileImage: response.data.profileImage,
+          });
           setUser(response.data);
           setIsLoading(false);
         }

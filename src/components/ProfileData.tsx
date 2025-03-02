@@ -1,0 +1,117 @@
+import { useState } from 'react';
+import { HttpStatusCode } from 'axios';
+import { toast } from 'react-toastify';
+import { Avatar, Box, IconButton, Typography, Paper, InputBase } from '@mui/material';
+import { Edit, CameraAlt, Done, Clear } from '@mui/icons-material';
+import { green, pink } from '@mui/material/colors';
+import { useUserContext } from '../UserContext';
+import userService from '../services/userService';
+
+const ProfileData = () => {
+  const { userContext, updateContextUsername, updateContextProfileImage } = useUserContext();
+  const [username, setUsername] = useState(userContext?.username || '');
+  const [isEditing, setIsEditing] = useState(false);
+  const [profilePic, setProfilePic] = useState(userContext?.profileImage || '');
+
+  const handleProfilePicChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const userId = userContext?._id || localStorage.getItem('userId');
+    if (!userId) {
+      return;
+    }
+
+    const uploadImageResponse = (await userService.uploadImage(file)).response;
+    if (uploadImageResponse.status !== HttpStatusCode.Ok) {
+      toast.error('Failed to upload image');
+      return;
+    }
+    const imageUrl = uploadImageResponse.data.url;
+    const updateUserRes = await userService.updateProfileImage(userId, imageUrl);
+    if (updateUserRes.response.status !== HttpStatusCode.Ok) {
+      toast.error('Failed to update profile image');
+      return;
+    }
+
+    updateContextProfileImage(imageUrl);
+    setProfilePic(imageUrl);
+    toast.success('Image updated successfully');
+  };
+
+  const handleUsernameChange = (username: string) => {
+    setUsername(username);
+  };
+
+  const handleUsernameSubmit = async () => {
+    const userId = userContext?._id || localStorage.getItem('userId');
+    if (!userId) {
+      return;
+    }
+    const { response } = await userService.updateUsername(userId, username);
+    if (response.status === HttpStatusCode.Ok) {
+      updateContextUsername(username);
+      toast.success('Username updated successfully');
+    } else {
+      setUsername(userContext?.username || '');
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancleEdit = () => {
+    setUsername(userContext?.username || '');
+    setIsEditing(false);
+  };
+
+  return (
+    <Box display="flex" alignItems="center" flexDirection="column">
+      <Box position="relative" display="inline-block">
+        <Avatar src={profilePic} sx={{ width: 120, height: 120, mx: 'auto' }} />
+        <IconButton
+          component="label"
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            bgcolor: 'background.paper',
+            border: '2px solid white',
+          }}
+        >
+          <CameraAlt fontSize="small" />
+          <input type="file" hidden accept="image/*" onChange={handleProfilePicChange} />
+        </IconButton>
+      </Box>
+
+      <Box mt={2}>
+        {isEditing ? (
+          <Paper component="form" sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Enter new username"
+              value={username}
+              onChange={(e) => handleUsernameChange(e.target.value)}
+              inputProps={{ 'aria-label': 'username' }}
+            />
+            <IconButton type="button" aria-label="done" onClick={handleUsernameSubmit}>
+              <Done sx={{ color: green[500] }} />
+            </IconButton>
+            <IconButton type="button" aria-label="clear" onClick={handleCancleEdit}>
+              <Clear sx={{ color: pink[500] }} />
+            </IconButton>
+          </Paper>
+        ) : (
+          <Typography variant="h5" fontWeight="bold">
+            {username}
+            <IconButton onClick={() => setIsEditing(true)} size="small">
+              <Edit fontSize="small" />
+            </IconButton>
+          </Typography>
+        )}
+      </Box>
+    </Box>
+  );
+};
+
+export default ProfileData;
