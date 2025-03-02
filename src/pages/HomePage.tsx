@@ -11,7 +11,7 @@ const cardData: IPost[] = [
     title: 'Revolutionizing software development with cutting-edge tools',
     content:
       'Our latest engineering tools are designed to streamline workflows and boost productivity. Discover how these innovations are transforming the software development landscape.',
-    user: { username: 'Remy Sharp', profileImage: '/static/images/avatar/1.jpg' },
+    postedBy: { username: 'Remy Sharp', profileImage: '/static/images/avatar/1.jpg' },
     likesCount: 2,
     commentsCount: 1,
     rating: 4,
@@ -22,7 +22,7 @@ const cardData: IPost[] = [
     title: 'Innovative product features that drive success',
     content:
       'Explore the key features of our latest product release that are helping businesses achieve their goals. From user-friendly interfaces to robust functionality, learn why our product stands out.',
-    user: { username: 'Erica Johns', profileImage: '/static/images/avatar/6.jpg' },
+    postedBy: { username: 'Erica Johns', profileImage: '/static/images/avatar/6.jpg' },
     likesCount: 4,
     commentsCount: 0,
     rating: 5,
@@ -33,7 +33,7 @@ const cardData: IPost[] = [
     title: 'Designing for the future: trends and insights',
     content:
       'Stay ahead of the curve with the latest design trends and insights. Our design team shares their expertise on creating intuitive and visually stunning user experiences.',
-    user: { username: 'Kate Morrison', profileImage: '/static/images/avatar/7.jpg' },
+    postedBy: { username: 'Kate Morrison', profileImage: '/static/images/avatar/7.jpg' },
     likesCount: 10,
     commentsCount: 5,
     rating: 1,

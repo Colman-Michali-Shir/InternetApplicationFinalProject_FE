@@ -12,7 +12,7 @@ import { pink } from '@mui/material/colors';
 import { Favorite, ModeComment } from '@mui/icons-material';
 import { IPost } from '../services/postsService';
 
-const User = ({ user }: { user: { username: string; profileImage: string } }) => {
+const User = ({ user }: { user: { username: string; profileImage?: string } }) => {
   return (
     <Box
       sx={{
@@ -24,7 +24,7 @@ const User = ({ user }: { user: { username: string; profileImage: string } }) =>
         padding: '16px',
       }}
     >
-      <Avatar alt={user.username} src={user.profileImage} sx={{ width: 24, height: 24 }} />
+      <Avatar alt={user.username} src={user?.profileImage} sx={{ width: 24, height: 24 }} />
       <Typography variant="subtitle1">{user.username}</Typography>
     </Box>
   );
@@ -104,7 +104,7 @@ const Post = ({ post }: { post: IPost }) => {
     textOverflow: 'ellipsis',
   });
 
-  const { user, image, title, content, likesCount, commentsCount, rating } = post;
+  const { postedBy, image, title, content, likesCount, commentsCount, rating } = post;
 
   return (
     <SyledCard
@@ -112,7 +112,7 @@ const Post = ({ post }: { post: IPost }) => {
       tabIndex={0}
       onClick={() => console.log('Card clicked', post._id)}
     >
-      <User user={user} />
+      <User user={postedBy} />
       <CardMedia
         component="img"
         image={image}
