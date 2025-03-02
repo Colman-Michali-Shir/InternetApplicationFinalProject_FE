@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Container, CssBaseline } from '@mui/material';
-import Login from './components/Login';
-import HomePage from './components/HomePage';
+import Login from './pages/Login';
+import HomePage from './pages/HomePage';
 import TopBar from './components/TopBar';
-import ProfilePage from './components/ProfilePage';
+import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
 import { AxiosError, HttpStatusCode } from 'axios';
 
