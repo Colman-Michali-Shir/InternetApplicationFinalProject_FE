@@ -14,6 +14,8 @@ import {
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import userService from '../services/userService';
+import postsService, { IPost } from '../services/postsService';
+import { HttpStatusCode } from 'axios';
 // import { uploadImage, createPost } from '../services/postService';
 
 interface FormData {
@@ -23,8 +25,9 @@ interface FormData {
 }
 const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: () => void }) => {
   const { register, handleSubmit, watch, reset } = useForm();
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [rating, setRating] = useState<number | null>(3);
+  const [rating, setRating] = useState<number | null>(1);
   const imageFile = watch('img');
 
   useEffect(() => {
@@ -41,28 +44,35 @@ const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: ()
 
   const onSubmit = async (data: FormData) => {
     try {
-      let imageUrl = '';
-      if (data.img) {
-        const uploadImageResponse = (await userService.uploadImage(data.img[0])).response;
-        imageUrl = uploadImageResponse.data.url;
+      const postedBy = localStorage.getItem('userId');
+      if (postedBy) {
+        let imageUrl = '';
+        if (data.img) {
+          const uploadImageResponse = (await userService.uploadImage(data.img[0])).response;
+          imageUrl = uploadImageResponse.data.url;
+        }
+        console.log(imageUrl);
+
+        if (data.title && data.content && rating) {
+          const postData: Omit<IPost, '_id'> = {
+            postedBy: { username: postedBy },
+            title: data.title,
+            content: data.content,
+            image: imageUrl,
+            rating,
+            likesCount: 0,
+            commentsCount: 0,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+
+          const createPostResponse = (await postsService.createPost(postData)).response;
+          if (createPostResponse.status === HttpStatusCode.Ok) {
+            alert('Post created successfully!');
+            handleClose();
+          }
+        }
       }
-      console.log(imageUrl);
-
-      //   const postData = {
-      //     userId: 'your-user-id', // Replace with actual user ID
-      //     title: data.title,
-      //     content: data.content,
-      //     image: imageUrl,
-      //     rating: rating,
-      //     likesCount: 0,
-      //     commentsCount: 0,
-      //     createdAt: new Date(),
-      //     updatedAt: new Date()
-      //   };
-
-      //   await createPost(postData);
-      //   alert('Post created successfully!');
-      //   handleClose();
     } catch (error) {
       console.error('Error creating post:', error);
     }
