@@ -1,10 +1,11 @@
-import axios, { CanceledError } from "axios";
+import axios, { CanceledError } from 'axios';
 
-export { CanceledError };
-
-const backend_url = import.meta.env.BACKEND_URL
-const apiClient = axios.create({
-    baseURL: backend_url,
+export const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_BACKEND_URL,
+  withCredentials: true, // Ensures cookies & headers are sent in cross-origin requests
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-export default { apiClient };
+export { CanceledError };

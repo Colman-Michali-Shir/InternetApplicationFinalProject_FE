@@ -5,42 +5,69 @@ import {
   Typography,
   CardMedia,
   Box,
-  AvatarGroup,
   Avatar,
+  Rating,
 } from '@mui/material';
+import { pink } from '@mui/material/colors';
+import { Favorite, ModeComment } from '@mui/icons-material';
+import { IPost } from '../services/postsService';
 
-const cardData = [
-  {
-    img: 'https://picsum.photos/800/450?random=1',
-    tag: 'Engineering',
-    title: 'Revolutionizing software development with cutting-edge tools',
-    description:
-      'Our latest engineering tools are designed to streamline workflows and boost productivity. Discover how these innovations are transforming the software development landscape.',
-    authors: [
-      { name: 'Remy Sharp', avatar: '/static/images/avatar/1.jpg' },
-      { name: 'Travis Howard', avatar: '/static/images/avatar/2.jpg' },
-    ],
-  },
-  {
-    img: 'https://picsum.photos/800/450?random=2',
-    tag: 'Product',
-    title: 'Innovative product features that drive success',
-    description:
-      'Explore the key features of our latest product release that are helping businesses achieve their goals. From user-friendly interfaces to robust functionality, learn why our product stands out.',
-    authors: [{ name: 'Erica Johns', avatar: '/static/images/avatar/6.jpg' }],
-  },
-  {
-    img: 'https://picsum.photos/800/450?random=3',
-    tag: 'Design',
-    title: 'Designing for the future: trends and insights',
-    description:
-      'Stay ahead of the curve with the latest design trends and insights. Our design team shares their expertise on creating intuitive and visually stunning user experiences.',
-    authors: [{ name: 'Kate Morrison', avatar: '/static/images/avatar/7.jpg' }],
-  },
-];
+const User = ({ user }: { user: { username: string; profileImage: string } }) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 2,
+        alignItems: 'center',
+        justifyContent: 'left',
+        padding: '16px',
+      }}
+    >
+      <Avatar alt={user.username} src={user.profileImage} sx={{ width: 24, height: 24 }} />
+      <Typography variant="subtitle1">{user.username}</Typography>
+    </Box>
+  );
+};
 
-const Post = ({ index }) => {
-  console.log(index);
+const BottomBar = ({
+  likesCount,
+  commentsCount,
+  rating,
+}: {
+  likesCount: number;
+  commentsCount: number;
+  rating: number;
+}) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 2,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '16px',
+      }}
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+          <Favorite sx={{ color: pink[500] }} />
+          <Typography variant="subtitle1">{likesCount}</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+          <ModeComment />
+          <Typography variant="subtitle1">{commentsCount}</Typography>
+        </Box>
+      </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+        <Rating name="read-only-rating" value={rating} readOnly />
+      </Box>
+    </Box>
+  );
+};
+
+const Post = ({ post }: { post: IPost }) => {
   const SyledCard = styled(Card)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -77,44 +104,18 @@ const Post = ({ index }) => {
     textOverflow: 'ellipsis',
   });
 
-  function Author({ authors }: { authors: { name: string; avatar: string }[] }) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px',
-        }}
-      >
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
-          <AvatarGroup max={3}>
-            {authors.map((author, index) => (
-              <Avatar
-                key={index}
-                alt={author.name}
-                src={author.avatar}
-                sx={{ width: 24, height: 24 }}
-              />
-            ))}
-          </AvatarGroup>
-          <Typography variant="caption">
-            {authors.map((author) => author.name).join(', ')}
-          </Typography>
-        </Box>
-        <Typography variant="caption">July 14, 2021</Typography>
-      </Box>
-    );
-  }
+  const { user, image, title, content, likesCount, commentsCount, rating } = post;
 
   return (
-    <SyledCard variant="outlined" tabIndex={0}>
+    <SyledCard
+      variant="outlined"
+      tabIndex={0}
+      onClick={() => console.log('Card clicked', post._id)}
+    >
+      <User user={user} />
       <CardMedia
         component="img"
-        alt="green iguana"
-        image={cardData[index].img}
+        image={image}
         sx={{
           aspectRatio: '16 / 9',
           borderBottom: '1px solid',
@@ -122,17 +123,14 @@ const Post = ({ index }) => {
         }}
       />
       <SyledCardContent>
-        <Typography gutterBottom variant="caption" component="div">
-          {cardData[index].tag}
-        </Typography>
         <Typography gutterBottom variant="h6" component="div">
-          {cardData[index].title}
+          {title}
         </Typography>
         <StyledTypography variant="body2" color="text.secondary" gutterBottom>
-          {cardData[index].description}
+          {content}
         </StyledTypography>
       </SyledCardContent>
-      <Author authors={cardData[index].authors} />
+      <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
     </SyledCard>
   );
 };
