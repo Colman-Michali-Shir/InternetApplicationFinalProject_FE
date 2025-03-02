@@ -1,5 +1,4 @@
 import { apiClient } from './apiClient';
-const accessToken = localStorage.getItem('accessToken');
 
 export interface IPost {
   _id: string;
@@ -15,14 +14,33 @@ export interface IPost {
 }
 
 const createPost = async (post: Omit<IPost, '_id'>) => {
+  const accessToken = localStorage.getItem('accessToken');
+
   const abortController = new AbortController();
-  const response = await apiClient.post('/posts/create', post, {
+  console.log('ssssssssssssssssssss', post);
+  const response = await apiClient.post('/posts', post, {
+    signal: abortController.signal,
     headers: {
       Authorization: `JWT ${accessToken}`,
     },
-    signal: abortController.signal,
   });
   return { response, abort: () => abortController.abort() };
 };
 
-export default { createPost };
+const getPosts = async (postedBy?: string, lastPostId?: string) => {
+  const accessToken = localStorage.getItem('accessToken');
+
+  const abortController = new AbortController();
+  const params = new URLSearchParams();
+  if (postedBy) params.append('postedBy', postedBy);
+  if (lastPostId) params.append('lastPostId', lastPostId);
+  const response = await apiClient.get(`/posts?${params.toString()}`, {
+    signal: abortController.signal,
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+    },
+  });
+  return { response, abort: () => abortController.abort() };
+};
+
+export default { createPost, getPosts };

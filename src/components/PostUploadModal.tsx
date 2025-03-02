@@ -13,18 +13,31 @@ import {
   Rating,
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
-import userService from '../services/userService';
+import { toast } from 'react-toastify';
+
+import userService, { IUser } from '../services/userService';
 import postsService, { IPost } from '../services/postsService';
-import { HttpStatusCode } from 'axios';
-// import { uploadImage, createPost } from '../services/postService';
+import { AxiosError, HttpStatusCode } from 'axios';
+import { useUserContext } from '../UserContext';
 
 interface FormData {
   title?: string;
   content?: string;
   img?: File[];
 }
-const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: () => void }) => {
+const PostUploadModal = ({
+  open,
+  handleClose,
+  storeUserSession,
+  clearUserSession,
+}: {
+  open: boolean;
+  handleClose: () => void;
+  storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
+  clearUserSession: () => void;
+}) => {
   const { register, handleSubmit, watch, reset } = useForm();
+  const { userContext } = useUserContext();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [rating, setRating] = useState<number | null>(1);
@@ -44,18 +57,16 @@ const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: ()
 
   const onSubmit = async (data: FormData) => {
     try {
-      const postedBy = localStorage.getItem('userId');
-      if (postedBy) {
+      if (userContext) {
         let imageUrl = '';
         if (data.img) {
           const uploadImageResponse = (await userService.uploadImage(data.img[0])).response;
           imageUrl = uploadImageResponse.data.url;
         }
-        console.log(imageUrl);
 
         if (data.title && data.content && rating) {
           const postData: Omit<IPost, '_id'> = {
-            postedBy: { username: postedBy },
+            postedBy: { username: userContext?.username, profileImage: userContext?.profileImage },
             title: data.title,
             content: data.content,
             image: imageUrl,
@@ -75,12 +86,39 @@ const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: ()
       }
     } catch (error) {
       console.error('Error creating post:', error);
+      const refreshToken = localStorage.getItem('refreshToken');
+
+      if (
+        error instanceof AxiosError &&
+        error.response?.status === HttpStatusCode.Unauthorized &&
+        refreshToken
+      ) {
+        try {
+          const { response: refreshResponse } = await userService.refresh(refreshToken);
+          if (refreshResponse.status === HttpStatusCode.Ok) {
+            storeUserSession(refreshResponse.data);
+            const createPostResponse = (
+              await postsService.createPost(JSON.parse(error.response.config.data))
+            ).response;
+            if (createPostResponse.status === HttpStatusCode.Created) {
+              toast.success('Upload a post successfully');
+              handleCloseModal();
+            } else {
+              toast.error('Failed to upload post');
+            }
+          } else {
+            clearUserSession();
+          }
+        } catch {
+          clearUserSession();
+        }
+      }
     }
   };
 
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="sm">
-      <DialogTitle>Create a Post</DialogTitle>
+      <DialogTitle>Upload a Post</DialogTitle>
       <DialogContent>
         <Box component="form">
           <TextField {...register('title')} label="Title" fullWidth margin="normal" required />

@@ -1,5 +1,4 @@
 import Post from '../components/Post';
-import { IUser } from '../services/userService';
 
 //TODO DELETE
 import { IPost } from '../services/postsService';
@@ -40,7 +39,7 @@ const cardData: IPost[] = [
   },
 ];
 
-const HomePage = ({ user }: { user: IUser }) => {
+const HomePage = () => {
   return (
     <>
       <Grid2 container spacing={3}>

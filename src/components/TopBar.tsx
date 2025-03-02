@@ -15,8 +15,9 @@ import {
   Avatar,
 } from '@mui/material';
 import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
-import { IUser } from '../services/userService';
 import PostUploadModal from './PostUploadModal';
+import { useUserContext } from '../UserContext';
+import { IUser } from '../services/userService';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -33,9 +34,16 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-const TopBar = ({ user, logoutUser }: { user: IUser; logoutUser: () => void }) => {
+const TopBar = ({
+  logoutUser,
+  storeUserSession,
+}: {
+  logoutUser: () => void;
+  storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
+}) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
+  const { userContext } = useUserContext();
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setIsDrawerOpen(newOpen);
@@ -88,6 +96,8 @@ const TopBar = ({ user, logoutUser }: { user: IUser; logoutUser: () => void }) =
               <PostUploadModal
                 open={isPostUploadModalOpen}
                 handleClose={togglePostUploadModal(false)}
+                storeUserSession={storeUserSession}
+                clearUserSession={logoutUser}
               ></PostUploadModal>
             </Box>
           </Box>
@@ -113,8 +123,12 @@ const TopBar = ({ user, logoutUser }: { user: IUser; logoutUser: () => void }) =
             }}
           >
             <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
-              {user.profileImage ? (
-                <Avatar src={user.profileImage} alt="Profile" sx={{ width: 25, height: 25 }} />
+              {userContext?.profileImage ? (
+                <Avatar
+                  src={userContext.profileImage}
+                  alt="Profile"
+                  sx={{ width: 25, height: 25 }}
+                />
               ) : (
                 <AccountCircle />
               )}
