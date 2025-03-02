@@ -1,7 +1,71 @@
-import { Card, CardContent, styled, Typography, CardMedia, Box, Avatar } from '@mui/material';
-import { pink, yellow } from '@mui/material/colors';
-import { Favorite, ModeComment, Star } from '@mui/icons-material';
+import {
+  Card,
+  CardContent,
+  styled,
+  Typography,
+  CardMedia,
+  Box,
+  Avatar,
+  Rating,
+} from '@mui/material';
+import { pink } from '@mui/material/colors';
+import { Favorite, ModeComment } from '@mui/icons-material';
 import { IPost } from '../services/postsService';
+
+const User = ({ user }: { user: { username: string; profileImage: string } }) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 2,
+        alignItems: 'center',
+        justifyContent: 'left',
+        padding: '16px',
+      }}
+    >
+      <Avatar alt={user.username} src={user.profileImage} sx={{ width: 24, height: 24 }} />
+      <Typography variant="subtitle1">{user.username}</Typography>
+    </Box>
+  );
+};
+
+const BottomBar = ({
+  likesCount,
+  commentsCount,
+  rating,
+}: {
+  likesCount: number;
+  commentsCount: number;
+  rating: number;
+}) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 2,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '16px',
+      }}
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+          <Favorite sx={{ color: pink[500] }} />
+          <Typography variant="subtitle1">{likesCount}</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+          <ModeComment />
+          <Typography variant="subtitle1">{commentsCount}</Typography>
+        </Box>
+      </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+        <Rating name="read-only-rating" value={rating} readOnly />
+      </Box>
+    </Box>
+  );
+};
 
 const Post = ({ post }: { post: IPost }) => {
   const SyledCard = styled(Card)(({ theme }) => ({
@@ -40,61 +104,7 @@ const Post = ({ post }: { post: IPost }) => {
     textOverflow: 'ellipsis',
   });
 
-  const User = ({ user }: { user: { username: string; profileImage: string } }) => {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'left',
-          padding: '16px',
-        }}
-      >
-        <Avatar alt={user.username} src={user.profileImage} sx={{ width: 24, height: 24 }} />
-        <Typography variant="subtitle1">{user.username}</Typography>
-      </Box>
-    );
-  };
-
-  const BottomBar = ({
-    likesCount,
-    commentsCount,
-    rating,
-  }: {
-    likesCount: number;
-    commentsCount: number;
-    rating: number;
-  }) => {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px',
-        }}
-      >
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-            <Favorite sx={{ color: pink[500] }} />
-            <Typography variant="subtitle1">{likesCount}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-            <ModeComment />
-            <Typography variant="subtitle1">{commentsCount}</Typography>
-          </Box>
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-          <Star sx={{ color: yellow[700] }} />
-          <Typography variant="subtitle1">{rating}</Typography>
-        </Box>
-      </Box>
-    );
-  };
+  const { user, image, title, content, likesCount, commentsCount, rating } = post;
 
   return (
     <SyledCard
@@ -102,10 +112,10 @@ const Post = ({ post }: { post: IPost }) => {
       tabIndex={0}
       onClick={() => console.log('Card clicked', post._id)}
     >
-      <User user={post.user} />
+      <User user={user} />
       <CardMedia
         component="img"
-        image={post.image}
+        image={image}
         sx={{
           aspectRatio: '16 / 9',
           borderBottom: '1px solid',
@@ -114,17 +124,13 @@ const Post = ({ post }: { post: IPost }) => {
       />
       <SyledCardContent>
         <Typography gutterBottom variant="h6" component="div">
-          {post.title}
+          {title}
         </Typography>
         <StyledTypography variant="body2" color="text.secondary" gutterBottom>
-          {post.content}
+          {content}
         </StyledTypography>
       </SyledCardContent>
-      <BottomBar
-        likesCount={post.likesCount}
-        commentsCount={post.commentsCount}
-        rating={post.rating}
-      />
+      <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
     </SyledCard>
   );
 };
