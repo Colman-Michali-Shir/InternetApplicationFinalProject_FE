@@ -3,20 +3,18 @@ import { useForm } from 'react-hook-form';
 import {
   Button,
   TextField,
-  Typography,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   IconButton,
   Box,
-  Rating,
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 import userService, { IUser } from '../services/userService';
-import postsService, { IPost } from '../services/postsService';
+import postsService, { ICreatePost } from '../services/postsService';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { useUserContext } from '../UserContext';
 
@@ -40,8 +38,11 @@ const PostUploadModal = ({
   const { userContext } = useUserContext();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [rating, setRating] = useState<number | null>(1);
+  // const [rating, setRating] = useState<number | null>(1);
   const imageFile = watch('img');
+  const title = watch('title');
+
+  const isSubmitDisabled = !title || !imageFile?.length;
 
   useEffect(() => {
     if (imageFile?.[0]) {
@@ -59,18 +60,14 @@ const PostUploadModal = ({
     try {
       if (userContext) {
         let imageUrl = '';
-        if (data.img) {
+        if (data.img && data.title) {
           const uploadImageResponse = (await userService.uploadImage(data.img[0])).response;
           imageUrl = uploadImageResponse.data.url;
-        }
-
-        if (data.title && data.content && rating) {
-          const postData: Omit<IPost, '_id'> = {
-            postedBy: { username: userContext?.username, profileImage: userContext?.profileImage },
+          const postData: ICreatePost = {
+            postedBy: userContext._id,
             title: data.title,
             content: data.content,
             image: imageUrl,
-            rating,
             likesCount: 0,
             commentsCount: 0,
             createdAt: new Date(),
@@ -78,9 +75,12 @@ const PostUploadModal = ({
           };
 
           const createPostResponse = (await postsService.createPost(postData)).response;
-          if (createPostResponse.status === HttpStatusCode.Ok) {
-            alert('Post created successfully!');
-            handleClose();
+          console.log(createPostResponse.status);
+          if (createPostResponse.status === HttpStatusCode.Created) {
+            toast.success('Upload a post successfully');
+            handleCloseModal();
+          } else {
+            toast.error('Failed to upload post');
           }
         }
       }
@@ -129,10 +129,9 @@ const PostUploadModal = ({
             margin="normal"
             multiline
             rows={4}
-            required
           />
-          <Typography sx={{ mt: 2 }}>Rating:</Typography>
-          <Rating value={rating} onChange={(_, newValue) => setRating(newValue)} />
+          {/* <Typography sx={{ mt: 2 }}>Rating:</Typography>
+          <Rating value={rating} onChange={(_, newValue) => setRating(newValue)} /> */}
           <Box mt={2} display="flex" alignItems="center">
             <input
               {...register('img')}
@@ -161,7 +160,12 @@ const PostUploadModal = ({
         <Button onClick={handleCloseModal} color="inherit">
           Cancel
         </Button>
-        <Button onClick={handleSubmit(onSubmit)} variant="contained" color="primary">
+        <Button
+          disabled={isSubmitDisabled}
+          onClick={handleSubmit(onSubmit)}
+          variant="contained"
+          color="primary"
+        >
           Submit
         </Button>
       </DialogActions>

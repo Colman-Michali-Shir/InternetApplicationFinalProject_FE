@@ -3,7 +3,7 @@ import { apiClient } from './apiClient';
 export interface IPost {
   _id: string;
   title: string;
-  content: string;
+  content?: string;
   image: string;
   postedBy: { username: string; profileImage?: string };
   likesCount: number;
@@ -13,11 +13,13 @@ export interface IPost {
   updatedAt?: Date;
 }
 
-const createPost = async (post: Omit<IPost, '_id'>) => {
+export interface ICreatePost extends Omit<IPost, '_id' | 'postedBy' | 'rating'> {
+  postedBy: string;
+}
+const createPost = async (post: ICreatePost) => {
   const accessToken = localStorage.getItem('accessToken');
 
   const abortController = new AbortController();
-  console.log('ssssssssssssssssssss', post);
   const response = await apiClient.post('/posts', post, {
     signal: abortController.signal,
     headers: {
