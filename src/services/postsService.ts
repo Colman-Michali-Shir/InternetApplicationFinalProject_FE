@@ -21,7 +21,7 @@ const getPosts = async (postedBy?: string, lastPostId?: string) => {
   const response = await apiClient.get(`/posts?${params.toString()}`, {
     signal: abortController.signal,
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `JWT ${accessToken}`,
     },
   });
   return { response, abort: () => abortController.abort() };
