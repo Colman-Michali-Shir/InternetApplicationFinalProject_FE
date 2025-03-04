@@ -13,10 +13,10 @@ export interface IPost {
   updatedAt?: Date;
 }
 
-export interface ICreatePost extends Omit<IPost, '_id' | 'postedBy' | 'rating'> {
+export interface IPostDB extends Omit<IPost, '_id' | 'postedBy'> {
   postedBy: string;
 }
-const createPost = async (post: ICreatePost) => {
+const createPost = async (post: IPostDB) => {
   const accessToken = localStorage.getItem('accessToken');
 
   const abortController = new AbortController();

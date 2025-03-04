@@ -1,26 +1,29 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import {
   Button,
   TextField,
+  Typography,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   IconButton,
   Box,
+  Rating,
 } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 import userService, { IUser } from '../services/userService';
-import postsService, { ICreatePost } from '../services/postsService';
+import postsService, { IPostDB } from '../services/postsService';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { useUserContext } from '../UserContext';
 
 interface FormData {
   title?: string;
   content?: string;
+  rating?: number;
   img?: File[];
 }
 const PostUploadModal = ({
@@ -34,15 +37,16 @@ const PostUploadModal = ({
   storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
   clearUserSession: () => void;
 }) => {
-  const { register, handleSubmit, watch, reset } = useForm();
+  const { register, handleSubmit, watch, reset, control } = useForm();
+  const imageFile = watch('img');
+  const title = watch('title');
+  const rating = watch('rating');
+
   const { userContext } = useUserContext();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  // const [rating, setRating] = useState<number | null>(1);
-  const imageFile = watch('img');
-  const title = watch('title');
 
-  const isSubmitDisabled = !title || !imageFile?.length;
+  const isSubmitDisabled = !title || !imageFile?.length || !rating;
 
   useEffect(() => {
     if (imageFile?.[0]) {
@@ -56,18 +60,19 @@ const PostUploadModal = ({
     setSelectedImage(null);
   };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async ({ title, content, img, rating }: FormData) => {
     try {
       if (userContext) {
-        let imageUrl = '';
-        if (data.img && data.title) {
-          const uploadImageResponse = (await userService.uploadImage(data.img[0])).response;
-          imageUrl = uploadImageResponse.data.url;
-          const postData: ICreatePost = {
+        if (img && title && rating) {
+          const uploadImageResponse = (await userService.uploadImage(img[0])).response;
+          const imageUrl = uploadImageResponse.data.url;
+
+          const postData: IPostDB = {
             postedBy: userContext._id,
-            title: data.title,
-            content: data.content,
+            title: title,
+            content: content,
             image: imageUrl,
+            rating: rating,
             likesCount: 0,
             commentsCount: 0,
             createdAt: new Date(),
@@ -75,7 +80,6 @@ const PostUploadModal = ({
           };
 
           const createPostResponse = (await postsService.createPost(postData)).response;
-          console.log(createPostResponse.status);
           if (createPostResponse.status === HttpStatusCode.Created) {
             toast.success('Upload a post successfully');
             handleCloseModal();
@@ -118,20 +122,32 @@ const PostUploadModal = ({
 
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="sm">
-      <DialogTitle>Upload a Post</DialogTitle>
+      <DialogTitle color="primary" sx={{ fontWeight: 'bold' }}>
+        Upload a Post
+      </DialogTitle>
       <DialogContent>
         <Box component="form">
-          <TextField {...register('title')} label="Title" fullWidth margin="normal" required />
+          <TextField
+            {...register('title')}
+            label="Enter restaurant name"
+            fullWidth
+            margin="normal"
+            required
+          />
           <TextField
             {...register('content')}
-            label="Content"
+            label="You can provide more details"
             fullWidth
             margin="normal"
             multiline
             rows={4}
           />
-          {/* <Typography sx={{ mt: 2 }}>Rating:</Typography>
-          <Rating value={rating} onChange={(_, newValue) => setRating(newValue)} /> */}
+          <Typography sx={{ mt: 2 }}>Rating</Typography>
+          <Controller
+            name="rating"
+            control={control}
+            render={({ field }) => <Rating {...field} />}
+          />
           <Box mt={2} display="flex" alignItems="center">
             <input
               {...register('img')}
