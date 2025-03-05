@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import { grey, deepPurple,lime } from '@mui/material/colors';
+import { grey, deepPurple, lime } from '@mui/material/colors';
 
 // Define your color palette here
 const theme = createTheme({
@@ -14,9 +14,8 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: '12px', // Consistent rounded corners
+          borderRadius: '6px', // Consistent rounded corners
           textTransform: 'none', // Disable uppercase
-        //   padding: '10px 20px',
         },
       },
       defaultProps: {

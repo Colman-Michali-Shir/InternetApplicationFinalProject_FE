@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import { HttpStatusCode } from 'axios';
 import { toast } from 'react-toastify';
-import { Avatar, Box, IconButton, Typography, Paper, InputBase } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  IconButton,
+  Typography,
+  Paper,
+  InputBase,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Button,
+  DialogActions,
+} from '@mui/material';
 import { Edit, CameraAlt, Done, Clear } from '@mui/icons-material';
 import { green, pink } from '@mui/material/colors';
 import { useUserContext } from '../UserContext';
@@ -12,6 +24,8 @@ const ProfileData = () => {
   const [username, setUsername] = useState(userContext?.username || '');
   const [isEditing, setIsEditing] = useState(false);
   const [profilePic, setProfilePic] = useState(userContext?.profileImage || '');
+  const [dialogDisplayProfilePic, setdialogDisplayProfilePic] = useState<File | null>(null);
+  const [openProfilePicDialog, setOpenProfilePicDialog] = useState(false);
 
   const handleProfilePicChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,25 +38,47 @@ const ProfileData = () => {
       return;
     }
 
-    const uploadImageResponse = (await userService.uploadImage(file)).response;
-    if (uploadImageResponse.status !== HttpStatusCode.Ok) {
-      toast.error('Failed to upload image');
-      return;
-    }
-    const imageUrl = uploadImageResponse.data.url;
-    const updateUserRes = await userService.updateProfileImage(userId, imageUrl);
-    if (updateUserRes.response.status !== HttpStatusCode.Ok) {
-      toast.error('Failed to update profile image');
-      return;
+    setdialogDisplayProfilePic(file);
+    setOpenProfilePicDialog(true);
+  };
+
+  const handleConfirmProfilePicChange = async () => {
+    if (!dialogDisplayProfilePic) return;
+
+    const userId = userContext?._id || localStorage.getItem('userId');
+    if (!userId) return;
+
+    try {
+      const uploadImageResponse = (await userService.uploadImage(dialogDisplayProfilePic)).response;
+      if (uploadImageResponse.status !== HttpStatusCode.Ok) {
+        toast.error('Failed to upload image');
+        return;
+      }
+      const imageUrl = uploadImageResponse.data.url;
+      const updateUserRes = await userService.updateProfileImage(userId, imageUrl);
+      if (updateUserRes.response.status !== HttpStatusCode.Ok) {
+        toast.error('Failed to update profile image');
+        return;
+      }
+
+      updateContextProfileImage(imageUrl);
+      setProfilePic(imageUrl);
+      toast.success('Image updated successfully');
+    } catch (error) {
+      toast.error('Error uploading image');
     }
 
-    updateContextProfileImage(imageUrl);
-    setProfilePic(imageUrl);
-    toast.success('Image updated successfully');
+    setOpenProfilePicDialog(false);
+    setdialogDisplayProfilePic(null);
   };
 
   const handleUsernameChange = (username: string) => {
     setUsername(username);
+  };
+
+  const handleCancelProfilePicChange = () => {
+    setdialogDisplayProfilePic(null);
+    setOpenProfilePicDialog(false);
   };
 
   const handleUsernameSubmit = async () => {
@@ -80,7 +116,12 @@ const ProfileData = () => {
           }}
         >
           <CameraAlt fontSize="small" />
-          <input type="file" hidden accept="image/*" onChange={handleProfilePicChange} />
+          <input
+            type="file"
+            hidden
+            accept="image/png, image/jpeg"
+            onChange={handleProfilePicChange}
+          />
         </IconButton>
       </Box>
 
@@ -110,6 +151,34 @@ const ProfileData = () => {
           </Typography>
         )}
       </Box>
+
+      <Dialog
+        open={openProfilePicDialog}
+        onClose={handleCancelProfilePicChange}
+        sx={{ '& .MuiDialog-paper': { minWidth: 350 } }}
+      >
+        <DialogTitle>
+          <Typography fontWeight={600} color="primary" textAlign="center">
+            New Profile Picture
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          {dialogDisplayProfilePic && (
+            <Avatar
+              src={URL.createObjectURL(dialogDisplayProfilePic)}
+              sx={{ width: 200, height: 200, mx: 'auto' }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={handleCancelProfilePicChange} variant="outlined">
+            Cancel
+          </Button>
+          <Button autoFocus onClick={handleConfirmProfilePicChange}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
