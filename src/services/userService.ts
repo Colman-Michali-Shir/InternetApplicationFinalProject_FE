@@ -89,7 +89,6 @@ const updateUsername = async (userId: string, username: string) => {
 };
 
 const updateProfileImage = async (userId: string, profileImage: string) => {
-  console.log(accessToken);
   const abortController = new AbortController();
   const response = await apiClient.put(
     `/users/${userId}`,
