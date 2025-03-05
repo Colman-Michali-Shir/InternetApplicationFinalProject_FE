@@ -64,7 +64,7 @@ const ProfileData = () => {
       updateContextProfileImage(imageUrl);
       setProfilePic(imageUrl);
       toast.success('Image updated successfully');
-    } catch (error) {
+    } catch {
       toast.error('Error uploading image');
     }
 
