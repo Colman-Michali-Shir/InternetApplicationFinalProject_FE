@@ -13,12 +13,12 @@ export interface IPost {
   updatedAt?: Date;
 }
 
+const accessToken = localStorage.getItem('accessToken');
+
 export interface IPostDB extends Omit<IPost, '_id' | 'postedBy'> {
   postedBy: string;
 }
 const createPost = async (post: IPostDB) => {
-  const accessToken = localStorage.getItem('accessToken');
-
   const abortController = new AbortController();
   const response = await apiClient.post('/posts', post, {
     signal: abortController.signal,
@@ -30,8 +30,6 @@ const createPost = async (post: IPostDB) => {
 };
 
 const getPosts = async (postedBy?: string, lastPostId?: string) => {
-  const accessToken = localStorage.getItem('accessToken');
-
   const abortController = new AbortController();
   const params = new URLSearchParams();
   if (postedBy) params.append('postedBy', postedBy);
