@@ -69,8 +69,8 @@ const App = () => {
 
         if (response.status === HttpStatusCode.Ok) {
           setUserContext({
-            username: response.data.username,
             _id: response.data._id,
+            username: response.data.username,
             profileImage: response.data.profileImage,
           });
           setUser(response.data);
@@ -104,7 +104,7 @@ const App = () => {
 
   return (
     <>
-      {user && <TopBar user={user} logoutUser={clearUserSession} />}
+      {user && <TopBar logoutUser={clearUserSession} storeUserSession={storeUserSession} />}
       <CssBaseline enableColorScheme />
       <Container
         maxWidth="lg"
@@ -133,10 +133,7 @@ const App = () => {
                 )
               }
             />
-            <Route
-              path="/"
-              element={user ? <HomePage user={user} /> : <Navigate to="/login" replace />}
-            />
+            <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" replace />} />
             <Route
               path="/profile"
               element={user ? <ProfilePage /> : <Navigate to="/login" replace />}

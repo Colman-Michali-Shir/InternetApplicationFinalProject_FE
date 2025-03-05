@@ -3,15 +3,31 @@ import { apiClient } from './apiClient';
 export interface IPost {
   _id: string;
   title: string;
-  content: string;
-  image?: string;
+  content?: string;
+  image: string;
   postedBy: { username: string; profileImage?: string };
   likesCount: number;
   commentsCount: number;
   rating: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const accessToken = localStorage.getItem('accessToken');
+
+export interface IPostDB extends Omit<IPost, '_id' | 'postedBy'> {
+  postedBy: string;
+}
+const createPost = async (post: IPostDB) => {
+  const abortController = new AbortController();
+  const response = await apiClient.post('/posts', post, {
+    signal: abortController.signal,
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+    },
+  });
+  return { response, abort: () => abortController.abort() };
+};
 
 const getPosts = async (postedBy?: string, lastPostId?: string) => {
   const abortController = new AbortController();
@@ -27,6 +43,4 @@ const getPosts = async (postedBy?: string, lastPostId?: string) => {
   return { response, abort: () => abortController.abort() };
 };
 
-export default {
-  getPosts,
-};
+export default { createPost, getPosts };

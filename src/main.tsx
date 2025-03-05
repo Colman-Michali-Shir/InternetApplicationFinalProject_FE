@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+// import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -11,16 +11,16 @@ import theme from './theme';
 
 createRoot(document.getElementById('root')!).render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-    <StrictMode>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <BrowserRouter>
-          <UserProvider>
-            <ToastContainer position="bottom-left" theme="colored" />
-            <App />
-          </UserProvider>
-        </BrowserRouter>
-      </ThemeProvider>
-    </StrictMode>
+    {/* <StrictMode> */}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <UserProvider>
+          <ToastContainer position="bottom-left" theme="colored" />
+          <App />
+        </UserProvider>
+      </BrowserRouter>
+    </ThemeProvider>
+    {/* </StrictMode> */}
   </GoogleOAuthProvider>,
 );
