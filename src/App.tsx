@@ -8,6 +8,7 @@ import TopBar from './components/TopBar';
 import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
+import Post from './components/Post';
 
 const App = () => {
   const { setUserContext } = useUserContext();
@@ -141,6 +142,7 @@ const App = () => {
               path="/profile"
               element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
             />
+            <Route path="/post/:id" element={<Post />} />
           </Routes>
         )}
       </Container>

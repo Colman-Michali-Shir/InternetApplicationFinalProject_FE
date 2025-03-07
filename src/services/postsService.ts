@@ -5,7 +5,7 @@ export interface IPost {
   title: string;
   content: string;
   image?: string;
-  postedBy: { username: string; profileImage?: string };
+  postedBy: { _id: string; username: string; profileImage?: string };
   likesCount: number;
   commentsCount: number;
   rating: number;

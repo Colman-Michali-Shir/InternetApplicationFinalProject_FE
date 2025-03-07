@@ -4,14 +4,20 @@ import { IUser } from '../services/userService';
 //TODO DELETE
 import { IPost } from '../services/postsService';
 import { Grid2 } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 const cardData: IPost[] = [
   {
-    _id: '1',
+    _id: '67c77e04a99bb6037e4d88d7',
     image: 'https://picsum.photos/800/450?random=1',
     title: 'Revolutionizing software development with cutting-edge tools',
     content:
       'Our latest engineering tools are designed to streamline workflows and boost productivity. Discover how these innovations are transforming the software development landscape.',
-    postedBy: { username: 'Remy Sharp', profileImage: '/static/images/avatar/1.jpg' },
+    postedBy: {
+      _id: '67c6057f36b1e8205baadedb',
+      username: 'Remy Sharp',
+      profileImage: '/static/images/avatar/1.jpg',
+    },
     likesCount: 2,
     commentsCount: 1,
     rating: 4,
@@ -22,7 +28,11 @@ const cardData: IPost[] = [
     title: 'Innovative product features that drive success',
     content:
       'Explore the key features of our latest product release that are helping businesses achieve their goals. From user-friendly interfaces to robust functionality, learn why our product stands out.',
-    postedBy: { username: 'Erica Johns', profileImage: '/static/images/avatar/6.jpg' },
+    postedBy: {
+      _id: '67c6029ec44eaee1dc3f7ff4',
+      username: 'Erica Johns',
+      profileImage: '/static/images/avatar/6.jpg',
+    },
     likesCount: 4,
     commentsCount: 0,
     rating: 5,
@@ -33,7 +43,11 @@ const cardData: IPost[] = [
     title: 'Designing for the future: trends and insights',
     content:
       'Stay ahead of the curve with the latest design trends and insights. Our design team shares their expertise on creating intuitive and visually stunning user experiences.',
-    postedBy: { username: 'Kate Morrison', profileImage: '/static/images/avatar/7.jpg' },
+    postedBy: {
+      _id: '67c6057f36b1e8205baadedb',
+      username: 'Kate Morrison',
+      profileImage: '/static/images/avatar/7.jpg',
+    },
     likesCount: 10,
     commentsCount: 5,
     rating: 1,
@@ -41,6 +55,14 @@ const cardData: IPost[] = [
 ];
 
 const HomePage = ({ user }: { user: IUser }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.shouldExtraDetailsState) {
+      navigate(location.pathname, { replace: true, state: {} }); // Reset state
+    }
+  }, [location, navigate]);
   return (
     <>
       <Grid2 container spacing={3}>

@@ -7,25 +7,49 @@ import {
   Box,
   Avatar,
   Rating,
+  IconButton,
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
-import { Favorite, ModeComment } from '@mui/icons-material';
+import { Delete, Edit, Favorite, ModeComment, Route } from '@mui/icons-material';
 import { IPost } from '../services/postsService';
+import PostExtraDetails from './PostExtraDetails';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useUserContext } from '../UserContext';
+import { IUser } from '../services/userService';
 
-const User = ({ user }: { user: { username: string; profileImage?: string } }) => {
+const User = ({
+  user,
+  isOwner,
+}: {
+  user: { _id: string; username: string; profileImage?: string };
+  isOwner: boolean;
+}) => {
   return (
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'row',
-        gap: 2,
         alignItems: 'center',
-        justifyContent: 'left',
+        justifyContent: 'space-between', // Push buttons to the right
         padding: '16px',
+        position: 'relative',
       }}
     >
-      <Avatar alt={user.username} src={user?.profileImage} sx={{ width: 24, height: 24 }} />
-      <Typography variant="subtitle1">{user.username}</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Avatar alt={user.username} src={user?.profileImage} sx={{ width: 24, height: 24 }} />
+        <Typography variant="subtitle1">{user.username}</Typography>
+      </Box>
+
+      {isOwner && (
+        <Box sx={{ position: 'absolute', right: 8 }}>
+          <IconButton size="small">
+            <Edit />
+          </IconButton>
+          <IconButton size="small">
+            <Delete color="error" />
+          </IconButton>
+        </Box>
+      )}
     </Box>
   );
 };
@@ -67,7 +91,9 @@ const BottomBar = ({
   );
 };
 
-const Post = ({ post }: { post: IPost }) => {
+const Post = ({ post }: { post?: IPost }) => {
+  const { userContext } = useUserContext();
+
   const SyledCard = styled(Card)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -103,35 +129,50 @@ const Post = ({ post }: { post: IPost }) => {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   });
+  const { state } = useLocation();
+  const navigate = useNavigate();
 
-  const { postedBy, image, title, content, likesCount, commentsCount, rating } = post;
+  const postState = state?.post || post;
+  const shouldExtraDetailsState = state?.shouldExtraDetails ?? false;
+  const { postedBy, image, title, content, likesCount, commentsCount, rating } = postState || {};
+  const isOwner = postedBy._id === userContext?._id;
 
+  const handleEdit = () => navigate(`/edit-post/${postState._id}`, { state: { post: postState } });
+  const handleDelete = () => console.log(`Delete post ${postState._id}`);
   return (
-    <SyledCard
-      variant="outlined"
-      tabIndex={0}
-      onClick={() => console.log('Card clicked', post._id)}
-    >
-      <User user={postedBy} />
-      <CardMedia
-        component="img"
-        image={image}
-        sx={{
-          aspectRatio: '16 / 9',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-        }}
-      />
-      <SyledCardContent>
-        <Typography gutterBottom variant="h6" component="div">
-          {title}
-        </Typography>
-        <StyledTypography variant="body2" color="text.secondary" gutterBottom>
-          {content}
-        </StyledTypography>
-      </SyledCardContent>
-      <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
-    </SyledCard>
+    postState && (
+      <SyledCard
+        variant="outlined"
+        tabIndex={0}
+        onClick={() =>
+          !shouldExtraDetailsState &&
+          navigate(`/post/${postState._id}`, {
+            state: { post: postState, shouldExtraDetails: true },
+          })
+        }
+      >
+        <User user={postedBy} isOwner={isOwner && shouldExtraDetailsState} />
+        <CardMedia
+          component="img"
+          image={image}
+          sx={{
+            aspectRatio: '16 / 9',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+          }}
+        />
+        <SyledCardContent>
+          <Typography gutterBottom variant="h6" component="div">
+            {title}
+          </Typography>
+          <StyledTypography variant="body2" color="text.secondary" gutterBottom>
+            {content}
+          </StyledTypography>
+        </SyledCardContent>
+        <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
+        {shouldExtraDetailsState && <PostExtraDetails post={postState} />}
+      </SyledCard>
+    )
   );
 };
 
