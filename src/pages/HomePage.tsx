@@ -1,11 +1,9 @@
 import Post from '../components/Post';
-import { IUser } from '../services/userService';
 
 //TODO DELETE
 import { IPost } from '../services/postsService';
 import { Grid2 } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+
 const cardData: IPost[] = [
   {
     _id: '67c77e04a99bb6037e4d88d7',
@@ -54,15 +52,7 @@ const cardData: IPost[] = [
   },
 ];
 
-const HomePage = ({ user }: { user: IUser }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (location.state?.shouldExtraDetailsState) {
-      navigate(location.pathname, { replace: true, state: {} }); // Reset state
-    }
-  }, [location, navigate]);
+const HomePage = () => {
   return (
     <>
       <Grid2 container spacing={3}>

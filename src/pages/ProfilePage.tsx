@@ -30,7 +30,7 @@ const Profile = () => {
       } else {
         toast.error('Failed to load posts.');
       }
-    } catch (err) {
+    } catch {
       toast.error('Error fetching posts.');
     }
   };

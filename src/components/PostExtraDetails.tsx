@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
 import {
-  Card,
-  CardContent,
   Typography,
   Avatar,
-  Box,
-  Rating,
   CircularProgress,
   List,
   ListItem,
@@ -16,27 +11,26 @@ import {
 import commentsService, { IComment } from '../services/commentsService';
 import { HttpStatusCode } from 'axios';
 import { IPost } from '../services/postsService';
+import { toast } from 'react-toastify';
 
 const PostExtraDetails = ({ post }: { post: IPost }) => {
-  //   const { id } = useParams();
   const [comments, setComments] = useState<IComment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  //   if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />;
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchCommentsByPostId = async () => {
       try {
         const { response } = await commentsService.getCommentsByPostId(post._id);
         if (response.status === HttpStatusCode.Ok) {
           setComments(response.data);
         }
-      } catch (error) {
-        console.error('Error fetching post:', error);
+      } catch {
+        toast.error('Error fetching comments');
       } finally {
         setLoading(false);
       }
     };
-    fetchPost();
+    fetchCommentsByPostId();
   }, [post]);
 
   return loading ? (

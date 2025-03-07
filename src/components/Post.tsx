@@ -8,29 +8,69 @@ import {
   Avatar,
   Rating,
   IconButton,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
+  Button,
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
-import { Delete, Edit, Favorite, ModeComment, Route } from '@mui/icons-material';
-import { IPost } from '../services/postsService';
+import { Delete, Edit, Favorite, ModeComment } from '@mui/icons-material';
+import postsService, { IPost } from '../services/postsService';
 import PostExtraDetails from './PostExtraDetails';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserContext } from '../UserContext';
-import { IUser } from '../services/userService';
+import { useState } from 'react';
+import PostUploadModal from './PostUploadModal';
+import { toast } from 'react-toastify';
+import { HttpStatusCode } from 'axios';
 
 const User = ({
+  post,
   user,
   isOwner,
+  handleClickEdit,
+  handleClose,
+  isPostUploadModalOpen,
 }: {
+  post: IPost;
   user: { _id: string; username: string; profileImage?: string };
   isOwner: boolean;
+  handleClickEdit: () => void;
+  handleClose: () => void;
+  isPostUploadModalOpen: boolean;
 }) => {
+  const navigate = useNavigate();
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const handleClickDelete = async () => {
+    try {
+      const { response } = await postsService.deletePost(post._id);
+      if (response.status === HttpStatusCode.Ok) {
+        toast.success('Deleted the post successfully');
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Failed to delete the post');
+    }
+  };
+
+  const handleDeleteConfirmation = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCancelDelete = () => {
+    setOpenDeleteDialog(false);
+  };
+
   return (
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between', // Push buttons to the right
+        justifyContent: 'space-between',
         padding: '16px',
         position: 'relative',
       }}
@@ -42,14 +82,31 @@ const User = ({
 
       {isOwner && (
         <Box sx={{ position: 'absolute', right: 8 }}>
-          <IconButton size="small">
+          <IconButton size="small" onClick={handleClickEdit}>
             <Edit />
           </IconButton>
-          <IconButton size="small">
+          <IconButton size="small" onClick={handleDeleteConfirmation}>
             <Delete color="error" />
           </IconButton>
         </Box>
       )}
+
+      <PostUploadModal open={isPostUploadModalOpen} handleClose={handleClose} post={post} />
+
+      <Dialog open={openDeleteDialog} onClose={handleCancelDelete}>
+        <DialogTitle>Delete Post</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this post?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleClickDelete} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
@@ -131,48 +188,56 @@ const Post = ({ post }: { post?: IPost }) => {
   });
   const { state } = useLocation();
   const navigate = useNavigate();
+  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
 
   const postState = state?.post || post;
   const shouldExtraDetailsState = state?.shouldExtraDetails ?? false;
   const { postedBy, image, title, content, likesCount, commentsCount, rating } = postState || {};
   const isOwner = postedBy._id === userContext?._id;
 
-  const handleEdit = () => navigate(`/edit-post/${postState._id}`, { state: { post: postState } });
-  const handleDelete = () => console.log(`Delete post ${postState._id}`);
   return (
-    postState && (
-      <SyledCard
-        variant="outlined"
-        tabIndex={0}
-        onClick={() =>
-          !shouldExtraDetailsState &&
-          navigate(`/post/${postState._id}`, {
-            state: { post: postState, shouldExtraDetails: true },
-          })
-        }
-      >
-        <User user={postedBy} isOwner={isOwner && shouldExtraDetailsState} />
-        <CardMedia
-          component="img"
-          image={image}
-          sx={{
-            aspectRatio: '16 / 9',
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-          }}
-        />
-        <SyledCardContent>
-          <Typography gutterBottom variant="h6" component="div">
-            {title}
-          </Typography>
-          <StyledTypography variant="body2" color="text.secondary" gutterBottom>
-            {content}
-          </StyledTypography>
-        </SyledCardContent>
-        <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
-        {shouldExtraDetailsState && <PostExtraDetails post={postState} />}
-      </SyledCard>
-    )
+    <>
+      {postState && (
+        <SyledCard
+          variant="outlined"
+          tabIndex={0}
+          onClick={() =>
+            !shouldExtraDetailsState &&
+            navigate(`/post/${postState._id}`, {
+              state: { post: postState, shouldExtraDetails: true },
+            })
+          }
+        >
+          <User
+            post={postState}
+            user={postedBy}
+            isOwner={isOwner && shouldExtraDetailsState}
+            handleClickEdit={() => setIsPostUploadModalOpen(true)}
+            handleClose={() => setIsPostUploadModalOpen(false)}
+            isPostUploadModalOpen={isPostUploadModalOpen}
+          />
+          <CardMedia
+            component="img"
+            image={image}
+            sx={{
+              aspectRatio: '16 / 9',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+            }}
+          />
+          <SyledCardContent>
+            <Typography gutterBottom variant="h6" component="div">
+              {title}
+            </Typography>
+            <StyledTypography variant="body2" color="text.secondary" gutterBottom>
+              {content}
+            </StyledTypography>
+          </SyledCardContent>
+          <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
+          {shouldExtraDetailsState && <PostExtraDetails post={postState} />}
+        </SyledCard>
+      )}
+    </>
   );
 };
 
