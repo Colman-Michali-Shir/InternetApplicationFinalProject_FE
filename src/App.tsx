@@ -8,10 +8,10 @@ import TopBar from './components/TopBar';
 import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
+import RecommendationPage from './pages/RecommendationPage';
 
 const App = () => {
-  const { setUserContext } = useUserContext();
-  const [user, setUser] = useState<IUser | null>(null);
+  const { userContext, setUserContext } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -27,7 +27,6 @@ const App = () => {
       _id: user._id,
       profileImage: user.profileImage,
     });
-    setUser(user);
     localStorage.setItem('userId', user._id);
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
@@ -36,7 +35,6 @@ const App = () => {
 
   const clearUserSession = () => {
     setUserContext(null);
-    setUser(null);
     localStorage.removeItem('userId');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -68,12 +66,10 @@ const App = () => {
         const { response } = await userService.getUserById(storedUserId, accessToken);
 
         if (response.status === HttpStatusCode.Ok) {
-          setUserContext({
-            username: response.data.username,
-            _id: response.data._id,
-            profileImage: response.data.profileImage,
-          });
-          setUser(response.data);
+          const {
+            data: { _id, username, profileImage },
+          } = response;
+          setUserContext({ _id, username, profileImage });
           setIsLoading(false);
         }
       } catch (error) {
@@ -84,7 +80,7 @@ const App = () => {
           refreshToken
         ) {
           try {
-            const { response: refreshResponse } = await userService.refresh(refreshToken);
+            const { response: refreshResponse } = await userService.refresh();
             if (refreshResponse.status === HttpStatusCode.Ok) {
               storeUserSession(refreshResponse.data);
             } else {
@@ -104,7 +100,7 @@ const App = () => {
 
   return (
     <>
-      {user && <TopBar user={user} logoutUser={clearUserSession} />}
+      {userContext?._id && <TopBar logoutUser={clearUserSession} />}
       <CssBaseline enableColorScheme />
       <Container
         maxWidth="lg"
@@ -126,7 +122,7 @@ const App = () => {
             <Route
               path="/login"
               element={
-                user ? (
+                userContext?._id ? (
                   <Navigate to="/" replace />
                 ) : (
                   <Login handleLoginSuccess={handleLoginSuccess} />
@@ -135,11 +131,15 @@ const App = () => {
             />
             <Route
               path="/"
-              element={user ? <HomePage user={user} /> : <Navigate to="/login" replace />}
+              element={userContext?._id ? <HomePage /> : <Navigate to="/login" replace />}
             />
             <Route
               path="/profile"
-              element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
+              element={userContext?._id ? <ProfilePage /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/recommendation"
+              element={userContext?._id ? <RecommendationPage /> : <Navigate to="/login" replace />}
             />
           </Routes>
         )}

@@ -14,8 +14,16 @@ import {
   MenuItem,
   Avatar,
 } from '@mui/material';
-import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
-import { IUser } from '../services/userService';
+import {
+  Menu,
+  CloseRounded,
+  Home,
+  AccountCircle,
+  Logout,
+  Upload,
+  Recommend,
+} from '@mui/icons-material';
+import { useUserContext } from '../UserContext';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -32,8 +40,9 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: () => void }) {
+export default function TopBar({ logoutUser }: { logoutUser: () => void }) {
   const [open, setOpen] = useState(false);
+  const { userContext } = useUserContext();
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
@@ -73,9 +82,17 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
               <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
                 <Home />
               </IconButton>
-              <Button variant="text" size="medium">
-                Upload
-              </Button>
+              <IconButton color="primary" aria-label="Upload">
+                <Upload />
+              </IconButton>
+              <IconButton
+                color="primary"
+                aria-label="Recommendation"
+                component={RouterLink}
+                to="/recommendation"
+              >
+                <Recommend />
+              </IconButton>
             </Box>
           </Box>
 
@@ -100,8 +117,12 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
             }}
           >
             <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
-              {user.profileImage ? (
-                <Avatar src={user.profileImage} alt="Profile" sx={{ width: 25, height: 25 }} />
+              {userContext?.profileImage ? (
+                <Avatar
+                  src={userContext.profileImage}
+                  alt="Profile"
+                  sx={{ width: 25, height: 25 }}
+                />
               ) : (
                 <AccountCircle />
               )}
@@ -139,6 +160,9 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
                 </MenuItem>
                 <MenuItem component={RouterLink} to="/upload" onClick={toggleDrawer(false)}>
                   Upload
+                </MenuItem>
+                <MenuItem component={RouterLink} to="/recommendation" onClick={toggleDrawer(false)}>
+                  Recommendation
                 </MenuItem>
                 <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
                   Logout

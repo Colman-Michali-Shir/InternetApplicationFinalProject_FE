@@ -51,7 +51,9 @@ const loginWithUsernameAndPassword = async (username: string, password: string) 
   return { response, abort: () => abortController.abort() };
 };
 
-const refresh = async (refreshToken: string) => {
+const refresh = async () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+
   const abortController = new AbortController();
   const response = await apiClient.post(
     '/auth/refresh',
