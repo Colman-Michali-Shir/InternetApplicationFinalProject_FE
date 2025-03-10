@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
-import { CircularProgress, List, TextField, Button, Box, Typography } from '@mui/material';
+import {
+  CircularProgress,
+  List,
+  TextField,
+  Button,
+  Box,
+  Typography,
+} from '@mui/material';
 import commentsService, { IComment } from '../services/commentsService';
 import { HttpStatusCode } from 'axios';
-import { IPost } from '../services/postsService';
 import { toast } from 'react-toastify';
 import Comment from './Comment';
 import { useUserContext } from '../UserContext';
@@ -28,11 +34,15 @@ const PostExtraDetails = React.memo(
         setLoading(true);
 
         try {
-          const { response } = await commentsService.getCommentsByPostId(postId, currentPage);
+          const { response } = await commentsService.getCommentsByPostId(
+            postId,
+            currentPage,
+          );
           if (response.status === HttpStatusCode.Ok) {
             const newComments = response.data;
 
             setComments((prevComments) => [...prevComments, ...newComments]);
+            setCurrentPage((prev) => prev + 1);
             setHasMore(newComments.length === limit);
           }
         } catch {
@@ -45,10 +55,12 @@ const PostExtraDetails = React.memo(
 
     useEffect(() => {
       fetchCommentsByPostId();
-    }, [currentPage]);
+    }, []);
 
     const onDeleteComment = (commentId: string) => {
-      setComments((prevComments) => prevComments.filter((c) => c._id !== commentId));
+      setComments((prevComments) =>
+        prevComments.filter((c) => c._id !== commentId),
+      );
     };
 
     const onEditComment = (updatedComment: IComment) => {
@@ -88,53 +100,60 @@ const PostExtraDetails = React.memo(
       }
     };
 
-    return loading ? (
-      <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />
-    ) : (
-      <Box display="flex" flexDirection="column" gap="4">
-        {/* <InfiniteScroll
+    return (
+      <Box>
+        <InfiniteScroll
           dataLength={comments.length}
-          next={() => hasMore && setCurrentPage((prevPage) => prevPage + 1)}
+          next={() => fetchCommentsByPostId()}
           hasMore={hasMore}
           loader={
-            <Box display="flex" justifyContent="center" mt={2}>
-              <CircularProgress />
-            </Box>
+            loading && (
+              <Box display="flex" justifyContent="center" mt={2}>
+                <CircularProgress />
+              </Box>
+            )
           }
           endMessage={
-            <Typography align="center" mt={2} color="textSecondary">
+            <Typography
+              component="div"
+              align="center"
+              mt={2}
+              color="textSecondary"
+            >
               No more comments to show 🎉
             </Typography>
           }
           style={{ overflow: 'visible' }}
-        > */}
-        <Box
-          sx={{
-            maxHeight: '400px',
-            overflowY: 'auto',
-          }}
+          scrollableTarget="comments-list"
         >
-          <List>
-            {comments.map((comment) => (
-              <Comment
-                key={comment._id}
-                comment={comment}
-                onDelete={onDeleteComment}
-                onEdit={onEditComment}
-              />
-            ))}
-          </List>
-        </Box>
-        {/* </InfiniteScroll> */}
+          <Box
+            sx={{
+              maxHeight: '400px',
+              overflowY: 'auto',
+            }}
+            id="comments-list"
+          >
+            <List>
+              {comments.map((comment) => (
+                <Comment
+                  key={comment._id}
+                  comment={comment}
+                  onDelete={onDeleteComment}
+                  onEdit={onEditComment}
+                />
+              ))}
+            </List>
+          </Box>
+        </InfiniteScroll>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
           <TextField
             label="Add a comment"
             multiline
             rows={4}
             value={newComment}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-              setNewComment(e.target.value)
-            }
+            onChange={(
+              e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+            ) => setNewComment(e.target.value)}
             variant="outlined"
           />
           <Button

@@ -17,7 +17,7 @@ import {
 import { pink } from '@mui/material/colors';
 import { Delete, Edit, Favorite, ModeComment } from '@mui/icons-material';
 import postsService, { IPost } from '../services/postsService';
-import PostExtraDetails from './PostExtraDetails';
+import PostExtraDetails from './CommentsList';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserContext } from '../UserContext';
 import { useCallback, useRef, useState } from 'react';
@@ -78,7 +78,11 @@ const User = ({
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Avatar alt={user.username} src={user.profileImage} sx={{ width: 24, height: 24 }} />
+        <Avatar
+          alt={user.username}
+          src={user.profileImage}
+          sx={{ width: 24, height: 24 }}
+        />
         <Typography variant="subtitle1">{user.username}</Typography>
       </Box>
 
@@ -129,7 +133,9 @@ const BottomBar = ({
   rating: number;
   commentsCountRef: React.RefObject<HTMLSpanElement | null>;
 }) => (
-  <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '16px' }}>
+  <Box
+    sx={{ display: 'flex', justifyContent: 'space-between', padding: '16px' }}
+  >
     <Box sx={{ display: 'flex', gap: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Favorite sx={{ color: pink[500] }} />
@@ -156,16 +162,16 @@ const Post = ({ post }: { post?: IPost }) => {
 
   const [postState, setPostState] = useState<IPost>(state?.post || post);
   const shouldExtraDetailsState = state?.shouldExtraDetails ?? false;
-  const { postedBy, image, title, content, likesCount, commentsCount, rating } = postState || {};
+  const { postedBy, image, title, content, likesCount, commentsCount, rating } =
+    postState || {};
   const isOwner = postedBy._id === userContext?._id;
 
   const commentsCountRef = useRef<HTMLSpanElement>(null);
 
   const updateCommentsCount = useCallback(() => {
     if (commentsCountRef.current) {
-      commentsCountRef.current.textContent = (
-        (Number(commentsCountRef.current.textContent) || 0) + 1
-      ).toString();
+      const currentCount = Number(commentsCountRef.current.textContent) || 0;
+      commentsCountRef.current.textContent = (currentCount + 1).toString();
     }
   }, []);
 
@@ -202,16 +208,28 @@ const Post = ({ post }: { post?: IPost }) => {
           <CardMedia
             component="img"
             image={image}
-            sx={{ aspectRatio: '16 / 9', borderBottom: '1px solid', borderColor: 'divider' }}
+            sx={{
+              aspectRatio: '16 / 9',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+            }}
           />
           <CardContent sx={{ flexGrow: 1, padding: 2 }}>
-            <Typography variant="caption" color="text.secondary" sx={{ marginLeft: 'auto' }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ marginLeft: 'auto' }}
+            >
               {moment(postState.createdAt).fromNow()}
             </Typography>
             <Typography variant="h6" component="div">
               {title}
             </Typography>
-            <StyledTypography variant="body2" color="text.secondary" gutterBottom>
+            <StyledTypography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+            >
               {content}
             </StyledTypography>
           </CardContent>
