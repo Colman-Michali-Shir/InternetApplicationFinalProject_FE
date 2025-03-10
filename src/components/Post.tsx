@@ -20,39 +20,38 @@ import postsService, { IPost } from '../services/postsService';
 import PostExtraDetails from './PostExtraDetails';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserContext } from '../UserContext';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
 import moment from 'moment';
 import { StyledTypography } from './StyledTypography';
-import React from 'react';
 
 const User = ({
   post,
   user,
   isOwner,
-  handleClickEdit,
-  handleClose,
   isPostUploadModalOpen,
+  onEditClick,
+  onClose,
   setPostState,
 }: {
   post: IPost;
   user: { _id: string; username: string; profileImage?: string };
   isOwner: boolean;
-  handleClickEdit: () => void;
-  handleClose: () => void;
   isPostUploadModalOpen: boolean;
+  onEditClick: () => void;
+  onClose: () => void;
   setPostState: React.Dispatch<React.SetStateAction<IPost>>;
 }) => {
   const navigate = useNavigate();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-  const handleClickDelete = async () => {
+  const handleDeletePost = async () => {
     try {
       const { response } = await postsService.deletePost(post._id);
       if (response.status === HttpStatusCode.Ok) {
-        toast.success('Deleted the post successfully');
+        toast.success('Post deleted successfully');
         navigate('/');
       }
     } catch (error) {
@@ -73,21 +72,19 @@ const User = ({
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
         padding: '16px',
         position: 'relative',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Avatar alt={user.username} src={user?.profileImage} sx={{ width: 24, height: 24 }} />
+        <Avatar alt={user.username} src={user.profileImage} sx={{ width: 24, height: 24 }} />
         <Typography variant="subtitle1">{user.username}</Typography>
       </Box>
 
       {isOwner && (
         <Box sx={{ position: 'absolute', right: 8 }}>
-          <IconButton size="small" onClick={handleClickEdit}>
+          <IconButton size="small" onClick={onEditClick}>
             <Edit />
           </IconButton>
           <IconButton size="small" onClick={handleDeleteConfirmation}>
@@ -98,7 +95,7 @@ const User = ({
 
       <SavePostModal
         open={isPostUploadModalOpen}
-        handleClose={handleClose}
+        handleClose={onClose}
         post={post}
         setPostState={setPostState}
       />
@@ -112,7 +109,7 @@ const User = ({
           <Button onClick={handleCancelDelete} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleClickDelete} color="error">
+          <Button onClick={handleDeletePost} color="error">
             Delete
           </Button>
         </DialogActions>
@@ -121,74 +118,37 @@ const User = ({
   );
 };
 
-const BottomBar = React.memo(
-  ({
-    likesCount,
-    commentsCount,
-    rating,
-  }: {
-    likesCount: number;
-    commentsCount: number;
-    rating: number;
-  }) => {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px',
-        }}
-      >
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-            <Favorite sx={{ color: pink[500] }} />
-            <Typography variant="subtitle1">{likesCount}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-            <ModeComment />
-            <Typography variant="subtitle1">{commentsCount}</Typography>
-          </Box>
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-          <Rating name="read-only-rating" value={rating} readOnly />
-        </Box>
+const BottomBar = ({
+  likesCount,
+  commentsCount,
+  rating,
+  commentsCountRef,
+}: {
+  likesCount: number;
+  commentsCount: number;
+  rating: number;
+  commentsCountRef: React.RefObject<HTMLSpanElement | null>;
+}) => (
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', padding: '16px' }}>
+    <Box sx={{ display: 'flex', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Favorite sx={{ color: pink[500] }} />
+        <Typography variant="subtitle1">{likesCount}</Typography>
       </Box>
-    );
-  },
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <ModeComment />
+        <Typography ref={commentsCountRef} variant="subtitle1">
+          {commentsCount}
+        </Typography>
+      </Box>
+    </Box>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Rating name="read-only-rating" value={rating} readOnly />
+    </Box>
+  </Box>
 );
 
 const Post = ({ post }: { post?: IPost }) => {
-  const SyledCard = styled(Card)(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    padding: 0,
-    height: '100%',
-    backgroundColor: theme.palette.background.paper,
-    '&:hover': {
-      backgroundColor: 'transparent',
-      cursor: 'pointer',
-    },
-    '&:focus-visible': {
-      outline: '3px solid',
-      outlineColor: 'hsla(210, 98%, 48%, 0.5)',
-      outlineOffset: '2px',
-    },
-  }));
-
-  const SyledCardContent = styled(CardContent)({
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-    padding: 16,
-    flexGrow: 1,
-    '&:last-child': {
-      paddingBottom: 16,
-    },
-  });
-
   const { state } = useLocation();
   const navigate = useNavigate();
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
@@ -198,18 +158,31 @@ const Post = ({ post }: { post?: IPost }) => {
   const shouldExtraDetailsState = state?.shouldExtraDetails ?? false;
   const { postedBy, image, title, content, likesCount, commentsCount, rating } = postState || {};
   const isOwner = postedBy._id === userContext?._id;
-  const [localCommentsCount, setLocalCommentsCount] = useState<number>(commentsCount ?? 0);
+
+  const commentsCountRef = useRef<HTMLSpanElement>(null);
 
   const updateCommentsCount = useCallback(() => {
-    setLocalCommentsCount((prev) => prev + 1);
+    if (commentsCountRef.current) {
+      commentsCountRef.current.textContent = (
+        (Number(commentsCountRef.current.textContent) || 0) + 1
+      ).toString();
+    }
   }, []);
+
+  const handleEditClick = () => {
+    setIsPostUploadModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsPostUploadModalOpen(false);
+  };
 
   return (
     <>
       {postState && (
-        <SyledCard
+        <Card
           variant="outlined"
-          tabIndex={0}
+          sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
           onClick={() =>
             !shouldExtraDetailsState &&
             navigate(`/post/${postState._id}`, {
@@ -221,36 +194,37 @@ const Post = ({ post }: { post?: IPost }) => {
             post={postState}
             user={postedBy}
             isOwner={isOwner && shouldExtraDetailsState}
-            handleClickEdit={() => setIsPostUploadModalOpen(true)}
-            handleClose={() => setIsPostUploadModalOpen(false)}
+            onEditClick={handleEditClick}
+            onClose={handleModalClose}
             isPostUploadModalOpen={isPostUploadModalOpen}
             setPostState={setPostState}
           />
           <CardMedia
             component="img"
             image={image}
-            sx={{
-              aspectRatio: '16 / 9',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-            }}
+            sx={{ aspectRatio: '16 / 9', borderBottom: '1px solid', borderColor: 'divider' }}
           />
-          <SyledCardContent>
+          <CardContent sx={{ flexGrow: 1, padding: 2 }}>
             <Typography variant="caption" color="text.secondary" sx={{ marginLeft: 'auto' }}>
               {moment(postState.createdAt).fromNow()}
             </Typography>
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography variant="h6" component="div">
               {title}
             </Typography>
             <StyledTypography variant="body2" color="text.secondary" gutterBottom>
               {content}
             </StyledTypography>
-          </SyledCardContent>
-          <BottomBar likesCount={likesCount} commentsCount={localCommentsCount} rating={rating} />
+          </CardContent>
+          <BottomBar
+            commentsCountRef={commentsCountRef}
+            likesCount={likesCount}
+            commentsCount={commentsCount}
+            rating={rating}
+          />
           {shouldExtraDetailsState && (
-            <PostExtraDetails post={postState} updateCommentsCount={updateCommentsCount} />
+            <PostExtraDetails updateCommentsCount={updateCommentsCount} />
           )}
-        </SyledCard>
+        </Card>
       )}
     </>
   );

@@ -8,15 +8,10 @@ import Comment from './Comment';
 import { useUserContext } from '../UserContext';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 const PostExtraDetails = React.memo(
-  ({
-    post,
-    updateCommentsCount,
-  }: {
-    post: IPost;
-    updateCommentsCount: () => void; // Accept callback to update commentsCount
-  }) => {
+  ({ updateCommentsCount }: { updateCommentsCount: () => void }) => {
     const [comments, setComments] = useState<IComment[]>([]);
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState<string>('');
@@ -24,24 +19,27 @@ const PostExtraDetails = React.memo(
     const [hasMore, setHasMore] = useState(true);
     const { userContext } = useUserContext();
     const limit = 5;
+    const { id: postId } = useParams();
 
     const fetchCommentsByPostId = async () => {
-      if (loading) return;
+      if (postId) {
+        if (loading) return;
 
-      setLoading(true);
+        setLoading(true);
 
-      try {
-        const { response } = await commentsService.getCommentsByPostId(post._id, currentPage);
-        if (response.status === HttpStatusCode.Ok) {
-          const newComments = response.data;
+        try {
+          const { response } = await commentsService.getCommentsByPostId(postId, currentPage);
+          if (response.status === HttpStatusCode.Ok) {
+            const newComments = response.data;
 
-          setComments((prevComments) => [...prevComments, ...newComments]);
-          setHasMore(newComments.length === limit);
+            setComments((prevComments) => [...prevComments, ...newComments]);
+            setHasMore(newComments.length === limit);
+          }
+        } catch {
+          toast.error('Error fetching comments');
+        } finally {
+          setLoading(false);
         }
-      } catch {
-        toast.error('Error fetching comments');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -62,26 +60,31 @@ const PostExtraDetails = React.memo(
     };
 
     const handleAddComment = async () => {
-      if (!newComment.trim()) {
-        toast.error('Comment cannot be empty');
-        return;
-      }
-
-      try {
-        const { response } = await commentsService.createComment({
-          postId: post._id,
-          content: newComment,
-        });
-
-        if (response.status === HttpStatusCode.Created) {
-          setComments((prevComments) => [...prevComments, { user: userContext, ...response.data }]);
-          setNewComment('');
-          //TODO: fix it
-          // updateCommentsCount();
-          toast.success('Comment added successfully');
+      if (postId) {
+        if (!newComment.trim()) {
+          toast.error('Comment cannot be empty');
+          return;
         }
-      } catch {
-        toast.error('Error adding comment');
+
+        try {
+          const { response } = await commentsService.createComment({
+            postId,
+            content: newComment,
+          });
+
+          if (response.status === HttpStatusCode.Created) {
+            setComments((prevComments) => [
+              ...prevComments,
+              { user: userContext, ...response.data },
+            ]);
+            setNewComment('');
+            //TODO: fix it
+            updateCommentsCount();
+            toast.success('Comment added successfully');
+          }
+        } catch {
+          toast.error('Error adding comment');
+        }
       }
     };
 
@@ -89,9 +92,9 @@ const PostExtraDetails = React.memo(
       <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />
     ) : (
       <Box display="flex" flexDirection="column" gap="4">
-        <InfiniteScroll
+        {/* <InfiniteScroll
           dataLength={comments.length}
-          next={() => setCurrentPage((prevPage) => prevPage + 1)}
+          next={() => hasMore && setCurrentPage((prevPage) => prevPage + 1)}
           hasMore={hasMore}
           loader={
             <Box display="flex" justifyContent="center" mt={2}>
@@ -104,25 +107,25 @@ const PostExtraDetails = React.memo(
             </Typography>
           }
           style={{ overflow: 'visible' }}
+        > */}
+        <Box
+          sx={{
+            maxHeight: '400px',
+            overflowY: 'auto',
+          }}
         >
-          <Box
-            sx={{
-              maxHeight: '400px',
-              overflowY: 'auto',
-            }}
-          >
-            <List>
-              {comments.map((comment) => (
-                <Comment
-                  key={comment._id}
-                  comment={comment}
-                  onDelete={onDeleteComment}
-                  onEdit={onEditComment}
-                />
-              ))}
-            </List>
-          </Box>
-        </InfiniteScroll>
+          <List>
+            {comments.map((comment) => (
+              <Comment
+                key={comment._id}
+                comment={comment}
+                onDelete={onDeleteComment}
+                onEdit={onEditComment}
+              />
+            ))}
+          </List>
+        </Box>
+        {/* </InfiniteScroll> */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
           <TextField
             label="Add a comment"

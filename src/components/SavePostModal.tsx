@@ -31,16 +31,11 @@ const SavePostModal = ({
   open,
   handleClose,
   setPostState,
-  // storeUserSession,
-  // clearUserSession,
 }: {
   post?: IPost;
   open: boolean;
   handleClose: () => void;
   setPostState?: React.Dispatch<React.SetStateAction<IPost>>;
-
-  // storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
-  // clearUserSession: () => void;
 }) => {
   const { register, handleSubmit, watch, reset, control } = useForm<FormData>({
     defaultValues: {
@@ -121,33 +116,6 @@ const SavePostModal = ({
       }
     } catch (error) {
       console.error('Error creating post:', error);
-      // const refreshToken = localStorage.getItem('refreshToken');
-
-      // if (
-      //   error instanceof AxiosError &&
-      //   error.response?.status === HttpStatusCode.Unauthorized &&
-      //   refreshToken
-      // ) {
-      //   try {
-      //     const { response: refreshResponse } = await userService.refresh(refreshToken);
-      //     if (refreshResponse.status === HttpStatusCode.Ok) {
-      //       storeUserSession(refreshResponse.data);
-      //       const createPostResponse = (
-      //         await postsService.createPost(JSON.parse(error.response.config.data))
-      //       ).response;
-      //       if (createPostResponse.status === HttpStatusCode.Created) {
-      //         toast.success('Upload a post successfully');
-      //         handleCloseModal();
-      //       } else {
-      //         toast.error('Failed to upload post');
-      //       }
-      //     } else {
-      //       clearUserSession();
-      //     }
-      //   } catch {
-      //     clearUserSession();
-      //   }
-      // }
     }
   };
 

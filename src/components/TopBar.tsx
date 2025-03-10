@@ -33,13 +33,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-const TopBar = ({
-  logoutUser,
-  // storeUserSession,
-}: {
-  logoutUser: () => void;
-  // storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
-}) => {
+const TopBar = ({ logoutUser }: { logoutUser: () => void }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
   const { userContext } = useUserContext();
@@ -91,8 +85,6 @@ const TopBar = ({
               <SavePostModal
                 open={isPostUploadModalOpen}
                 handleClose={() => setIsPostUploadModalOpen(false)}
-                // storeUserSession={storeUserSession}
-                // clearUserSession={logoutUser}
               />
             </Box>
           </Box>
