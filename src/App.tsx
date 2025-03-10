@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { AxiosError, HttpStatusCode } from 'axios';
+import { HttpStatusCode } from 'axios';
 import { Box, CircularProgress, Container, CssBaseline } from '@mui/material';
 import Login from './pages/Login';
 import HomePage from './pages/HomePage';
@@ -57,16 +57,14 @@ const App = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const storedUserId = localStorage.getItem('userId');
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
 
-      if (!storedUserId || !accessToken) {
+      if (!storedUserId) {
         setIsLoading(false);
         return;
       }
 
       try {
-        const { response } = await userService.getUserById(storedUserId, accessToken);
+        const { response } = await userService.getUserById(storedUserId);
 
         if (response.status === HttpStatusCode.Ok) {
           setUserContext({
@@ -79,24 +77,24 @@ const App = () => {
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        if (
-          error instanceof AxiosError &&
-          error.response?.status === HttpStatusCode.Unauthorized &&
-          refreshToken
-        ) {
-          try {
-            const { response: refreshResponse } = await userService.refresh(refreshToken);
-            if (refreshResponse.status === HttpStatusCode.Ok) {
-              storeUserSession(refreshResponse.data);
-            } else {
-              clearUserSession();
-            }
-          } catch {
-            clearUserSession();
-          }
-        } else {
-          clearUserSession();
-        }
+        // if (
+        //   error instanceof AxiosError &&
+        //   error.response?.status === HttpStatusCode.Unauthorized &&
+        //   refreshToken
+        // ) {
+        //   try {
+        //     const { response: refreshResponse } = await userService.refresh(refreshToken);
+        //     if (refreshResponse.status === HttpStatusCode.Ok) {
+        //       storeUserSession(refreshResponse.data);
+        //     } else {
+        //       clearUserSession();
+        //     }
+        //   } catch {
+        //     clearUserSession();
+        //   }
+        // } else {
+        //   clearUserSession();
+        // }
       }
     };
 

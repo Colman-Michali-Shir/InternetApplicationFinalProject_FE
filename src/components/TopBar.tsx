@@ -15,7 +15,7 @@ import {
   Avatar,
 } from '@mui/material';
 import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
-import PostUploadModal from './PostUploadModal';
+import SavePostModal from './SavePostModal';
 import { useUserContext } from '../UserContext';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -88,7 +88,7 @@ const TopBar = ({
               <Button variant="text" size="medium" onClick={() => setIsPostUploadModalOpen(true)}>
                 Upload
               </Button>
-              <PostUploadModal
+              <SavePostModal
                 open={isPostUploadModalOpen}
                 handleClose={() => setIsPostUploadModalOpen(false)}
                 // storeUserSession={storeUserSession}

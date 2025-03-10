@@ -3,12 +3,21 @@ import { CanceledError } from 'axios';
 import userService from './userService';
 
 // Axios instance
+
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true, // Ensures cookies & headers are sent in cross-origin requests
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken) {
+    config.headers['Authorization'] = `JWT ${accessToken}`;
+  }
+  return config;
 });
 
 // Interceptor to handle token refresh on Unauthorized error
@@ -27,12 +36,9 @@ apiClient.interceptors.response.use(
           // Store the new access token
           localStorage.setItem('accessToken', refreshResponse.data.accessToken);
           localStorage.setItem('refreshToken', refreshResponse.data.refreshToken);
-
           // Retry the original request with the new token
           const originalRequest = error.config;
           if (originalRequest) {
-            originalRequest.headers['Authorization'] = `JWT ${refreshResponse.data.accessToken}`;
-
             // Return the retry request
             return apiClient(originalRequest);
           }

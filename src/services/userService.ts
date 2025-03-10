@@ -10,8 +10,6 @@ export interface IUser {
   profileImage?: string;
 }
 
-const accessToken = localStorage.getItem('accessToken');
-
 const uploadImage = async (img: File) => {
   const abortController = new AbortController();
 
@@ -19,7 +17,6 @@ const uploadImage = async (img: File) => {
   formData.append('file', img);
   const response = await apiClient.post('/file?file=' + img.name, formData, {
     signal: abortController.signal,
-
     headers: {
       'Content-Type': 'image/*',
     },
@@ -61,14 +58,11 @@ const refresh = async (refreshToken: string) => {
   return { response, abort: () => abortController.abort() };
 };
 
-const getUserById = async (userId: string, accessToken: string) => {
+const getUserById = async (userId: string) => {
   const abortController = new AbortController();
 
   const response = await apiClient.get(`/users/${userId}`, {
     signal: abortController.signal,
-    headers: {
-      Authorization: `JWT ${accessToken}`,
-    },
   });
   return { response, abort: () => abortController.abort() };
 };
@@ -80,9 +74,6 @@ const updateUsername = async (userId: string, username: string) => {
     { username },
     {
       signal: abortController.signal,
-      headers: {
-        Authorization: `JWT ${accessToken}`,
-      },
     },
   );
   return { response, abort: () => abortController.abort() };
@@ -95,9 +86,6 @@ const updateProfileImage = async (userId: string, profileImage: string) => {
     { profileImage },
     {
       signal: abortController.signal,
-      headers: {
-        Authorization: `JWT ${accessToken}`,
-      },
     },
   );
   return { response, abort: () => abortController.abort() };

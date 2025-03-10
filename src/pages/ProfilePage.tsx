@@ -23,8 +23,8 @@ const Profile = () => {
     try {
       const response = (await postService.getPosts(userId, lastPostId)).response;
       if (response.status === HttpStatusCode.Ok) {
-        const newPosts = response.data.posts;
-        setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+        const newPosts = response.data;
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
         setLastPostId(newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null);
         setHasMore(newPosts.length > 0);
       } else {

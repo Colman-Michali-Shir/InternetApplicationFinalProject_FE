@@ -26,16 +26,19 @@ interface FormData {
   rating?: number;
   img?: File[];
 }
-const PostUploadModal = ({
+const SavePostModal = ({
   post,
   open,
   handleClose,
+  setPostState,
   // storeUserSession,
   // clearUserSession,
 }: {
   post?: IPost;
   open: boolean;
   handleClose: () => void;
+  setPostState?: React.Dispatch<React.SetStateAction<IPost>>;
+
   // storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
   // clearUserSession: () => void;
 }) => {
@@ -44,7 +47,6 @@ const PostUploadModal = ({
       title: post?.title || '',
       content: post?.content || '',
       rating: post?.rating || 0,
-      img: post?.image ? [new File([], post.image)] : [],
     },
   });
   const imageFile = watch('img');
@@ -61,10 +63,12 @@ const PostUploadModal = ({
     if (post?.image) {
       setSelectedImage(post.image);
     }
-  }, []);
+  }, [post]);
 
   useEffect(() => {
     if (imageFile?.[0]) {
+      console.log('2');
+
       setSelectedImage(URL.createObjectURL(imageFile[0]));
     }
   }, [imageFile]);
@@ -78,7 +82,7 @@ const PostUploadModal = ({
   const onSubmit = async ({ title, content, img, rating }: FormData) => {
     try {
       if (userContext) {
-        if (img && title && content && rating) {
+        if (img && title && rating) {
           const uploadImageResponse = (await userService.uploadImage(img[0])).response;
           const imageUrl = uploadImageResponse.data.url;
 
@@ -95,9 +99,10 @@ const PostUploadModal = ({
           };
 
           if (post) {
-            const editPostResponse = (await postsService.editPost({ ...postData, _id: post._id }))
+            const editPostResponse = (await postsService.updatePost({ ...postData, _id: post._id }))
               .response;
             if (editPostResponse.status === HttpStatusCode.Ok) {
+              setPostState?.(editPostResponse.data);
               toast.success('Edit a post successfully');
               handleCloseModal();
             } else {
@@ -149,7 +154,7 @@ const PostUploadModal = ({
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="sm">
       <DialogTitle color="primary" sx={{ fontWeight: 'bold' }}>
-        Upload a Post
+        {post ? 'Edit Post' : 'Upload a Post'}
       </DialogTitle>
       <DialogContent>
         <Box component="form">
@@ -215,4 +220,4 @@ const PostUploadModal = ({
   );
 };
 
-export default PostUploadModal;
+export default SavePostModal;

@@ -20,10 +20,13 @@ import postsService, { IPost } from '../services/postsService';
 import PostExtraDetails from './PostExtraDetails';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserContext } from '../UserContext';
-import { useState } from 'react';
-import PostUploadModal from './PostUploadModal';
+import { useCallback, useState } from 'react';
+import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
+import moment from 'moment';
+import { StyledTypography } from './StyledTypography';
+import React from 'react';
 
 const User = ({
   post,
@@ -32,6 +35,7 @@ const User = ({
   handleClickEdit,
   handleClose,
   isPostUploadModalOpen,
+  setPostState,
 }: {
   post: IPost;
   user: { _id: string; username: string; profileImage?: string };
@@ -39,6 +43,7 @@ const User = ({
   handleClickEdit: () => void;
   handleClose: () => void;
   isPostUploadModalOpen: boolean;
+  setPostState: React.Dispatch<React.SetStateAction<IPost>>;
 }) => {
   const navigate = useNavigate();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -91,10 +96,15 @@ const User = ({
         </Box>
       )}
 
-      <PostUploadModal open={isPostUploadModalOpen} handleClose={handleClose} post={post} />
+      <SavePostModal
+        open={isPostUploadModalOpen}
+        handleClose={handleClose}
+        post={post}
+        setPostState={setPostState}
+      />
 
       <Dialog open={openDeleteDialog} onClose={handleCancelDelete}>
-        <DialogTitle>Delete Post</DialogTitle>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>Are you sure you want to delete this post?</Typography>
         </DialogContent>
@@ -111,46 +121,46 @@ const User = ({
   );
 };
 
-const BottomBar = ({
-  likesCount,
-  commentsCount,
-  rating,
-}: {
-  likesCount: number;
-  commentsCount: number;
-  rating: number;
-}) => {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: 2,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px',
-      }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-          <Favorite sx={{ color: pink[500] }} />
-          <Typography variant="subtitle1">{likesCount}</Typography>
+const BottomBar = React.memo(
+  ({
+    likesCount,
+    commentsCount,
+    rating,
+  }: {
+    likesCount: number;
+    commentsCount: number;
+    rating: number;
+  }) => {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 2,
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px',
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+            <Favorite sx={{ color: pink[500] }} />
+            <Typography variant="subtitle1">{likesCount}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
+            <ModeComment />
+            <Typography variant="subtitle1">{commentsCount}</Typography>
+          </Box>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-          <ModeComment />
-          <Typography variant="subtitle1">{commentsCount}</Typography>
+          <Rating name="read-only-rating" value={rating} readOnly />
         </Box>
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-        <Rating name="read-only-rating" value={rating} readOnly />
-      </Box>
-    </Box>
-  );
-};
+    );
+  },
+);
 
 const Post = ({ post }: { post?: IPost }) => {
-  const { userContext } = useUserContext();
-
   const SyledCard = styled(Card)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -179,21 +189,20 @@ const Post = ({ post }: { post?: IPost }) => {
     },
   });
 
-  const StyledTypography = styled(Typography)({
-    display: '-webkit-box',
-    WebkitBoxOrient: 'vertical',
-    WebkitLineClamp: 2,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  });
   const { state } = useLocation();
   const navigate = useNavigate();
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
+  const { userContext } = useUserContext();
 
-  const postState = state?.post || post;
+  const [postState, setPostState] = useState<IPost>(state?.post || post);
   const shouldExtraDetailsState = state?.shouldExtraDetails ?? false;
   const { postedBy, image, title, content, likesCount, commentsCount, rating } = postState || {};
   const isOwner = postedBy._id === userContext?._id;
+  const [localCommentsCount, setLocalCommentsCount] = useState<number>(commentsCount ?? 0);
+
+  const updateCommentsCount = useCallback(() => {
+    setLocalCommentsCount((prev) => prev + 1);
+  }, []);
 
   return (
     <>
@@ -215,6 +224,7 @@ const Post = ({ post }: { post?: IPost }) => {
             handleClickEdit={() => setIsPostUploadModalOpen(true)}
             handleClose={() => setIsPostUploadModalOpen(false)}
             isPostUploadModalOpen={isPostUploadModalOpen}
+            setPostState={setPostState}
           />
           <CardMedia
             component="img"
@@ -226,6 +236,9 @@ const Post = ({ post }: { post?: IPost }) => {
             }}
           />
           <SyledCardContent>
+            <Typography variant="caption" color="text.secondary" sx={{ marginLeft: 'auto' }}>
+              {moment(postState.createdAt).fromNow()}
+            </Typography>
             <Typography gutterBottom variant="h6" component="div">
               {title}
             </Typography>
@@ -233,8 +246,10 @@ const Post = ({ post }: { post?: IPost }) => {
               {content}
             </StyledTypography>
           </SyledCardContent>
-          <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
-          {shouldExtraDetailsState && <PostExtraDetails post={postState} />}
+          <BottomBar likesCount={likesCount} commentsCount={localCommentsCount} rating={rating} />
+          {shouldExtraDetailsState && (
+            <PostExtraDetails post={postState} updateCommentsCount={updateCommentsCount} />
+          )}
         </SyledCard>
       )}
     </>
