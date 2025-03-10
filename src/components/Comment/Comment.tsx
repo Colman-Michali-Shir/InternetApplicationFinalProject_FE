@@ -15,11 +15,11 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { Edit, Delete, Save, Close } from '@mui/icons-material';
-import commentsService, { IComment } from '../services/commentsService';
+import commentsService, { IComment } from '../../services/commentsService';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
-import { useUserContext } from '../UserContext';
-import { TruncatedParagraph } from './StyledTypography';
+import { useUserContext } from '../../UserContext';
+import { TruncatedParagraph } from './TruncatedParagraph';
 
 const Comment = ({
   comment,
@@ -46,8 +46,9 @@ const Comment = ({
 
   const handleSaveEdit = async () => {
     try {
-      const editCommentResponse = (await commentsService.updateComment(comment._id, editedContent))
-        .response;
+      const editCommentResponse = (
+        await commentsService.updateComment(comment._id, editedContent)
+      ).response;
       if (editCommentResponse.status === HttpStatusCode.Ok) {
         onEdit(editCommentResponse.data);
         toast.success('Comment updated successfully');
@@ -66,7 +67,9 @@ const Comment = ({
 
   const handleConfirmDelete = async () => {
     try {
-      const deleteCommentResponse = (await commentsService.deleteComment(comment._id)).response;
+      const deleteCommentResponse = (
+        await commentsService.deleteComment(comment._id)
+      ).response;
       if (deleteCommentResponse.status === HttpStatusCode.Ok) {
         toast.success('Comment deleted successfully');
         onDelete(comment._id);
@@ -140,12 +143,18 @@ const Comment = ({
 
       <Dialog open={isDeleteDialogOpen} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>Are you sure you want to delete this comment?</DialogContent>
+        <DialogContent>
+          Are you sure you want to delete this comment?
+        </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+          <Button
+            onClick={handleConfirmDelete}
+            color="error"
+            variant="contained"
+          >
             Delete
           </Button>
         </DialogActions>

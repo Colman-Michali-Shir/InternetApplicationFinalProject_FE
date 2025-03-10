@@ -1,7 +1,6 @@
 import axios, { AxiosError, HttpStatusCode } from 'axios';
 import { CanceledError } from 'axios';
 import userService from './userService';
-import { useUserContext } from '../UserContext';
 
 // Axios instance
 export const apiClient = axios.create({
@@ -24,34 +23,37 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response, // Pass successful responses through
   async (error: AxiosError) => {
-    // Check for Unauthorized error and if we have a refresh token
     if (error.response?.status === HttpStatusCode.Unauthorized) {
       const refreshToken = localStorage.getItem('refreshToken');
 
       if (refreshToken) {
         try {
-          // Attempt to refresh the token
-          const { response: refreshResponse } = await userService.refresh(refreshToken);
-          // Store the new access token
-          localStorage.setItem('accessToken', refreshResponse.data.accessToken);
-          localStorage.setItem('refreshToken', refreshResponse.data.refreshToken);
-          // Retry the original request with the new token
-          const originalRequest = error.config;
-          if (originalRequest) {
-            originalRequest.headers['Authorization'] = `JWT ${refreshResponse.data.accessToken}`;
+          // Refresh token
+          const refreshResponse = await userService.refresh(refreshToken);
+          const { accessToken, refreshToken: newRefreshToken } =
+            refreshResponse.response.data;
 
-            // Return the retry request
-            return apiClient(originalRequest);
-          }
+          // Store new tokens
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', newRefreshToken);
+
+          // Retry the original request
+          return apiClient({
+            ...error.config, // Clone the original request config
+            headers: {
+              ...error.config?.headers, // Preserve existing headers
+              Authorization: `JWT ${accessToken}`, // Inject new token
+            },
+          });
         } catch (refreshError) {
           console.error('Error refreshing token:', refreshError);
-          // Optional: Handle refresh failure (e.g., log out the user)
-          // For example: redirect to login page, or clear tokens
+
+          // Clear tokens and redirect to login
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
-          //TODO: fix it
-          // setUserContext(null);
-          window.location.href = '/login'; // Redirect to login or handle accordingly
+          window.location.href = '/login';
+
+          return Promise.reject(refreshError);
         }
       }
     }

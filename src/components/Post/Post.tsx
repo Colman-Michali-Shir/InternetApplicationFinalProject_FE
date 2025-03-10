@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  styled,
   Typography,
   CardMedia,
   Box,
@@ -16,10 +15,10 @@ import {
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { Delete, Edit, Favorite, ModeComment } from '@mui/icons-material';
-import postsService, { IPost } from '../services/postsService';
-import PostExtraDetails from './CommentsList';
+import postsService, { IPost } from '../../services/postsService';
+import PostExtraDetails from '../Comment/CommentsList';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useUserContext } from '../UserContext';
+import { useUserContext } from '../../UserContext';
 import { useCallback, useRef, useState } from 'react';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';

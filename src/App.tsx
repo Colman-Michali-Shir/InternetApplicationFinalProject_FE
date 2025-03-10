@@ -8,7 +8,7 @@ import TopBar from './components/TopBar';
 import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
-import Post from './components/Post';
+import Post from './components/Post/Post';
 
 const App = () => {
   const { userContext, setUserContext } = useUserContext();
@@ -56,7 +56,9 @@ const App = () => {
       const storedUserId = localStorage.getItem('userId');
 
       if (!storedUserId) {
+        setUserContext(null);
         setIsLoading(false);
+
         return;
       }
 
@@ -114,11 +116,15 @@ const App = () => {
             />
             <Route
               path="/"
-              element={userContext ? <HomePage /> : <Navigate to="/login" replace />}
+              element={
+                userContext ? <HomePage /> : <Navigate to="/login" replace />
+              }
             />
             <Route
               path="/profile"
-              element={userContext ? <ProfilePage /> : <Navigate to="/login" replace />}
+              element={
+                userContext ? <ProfilePage /> : <Navigate to="/login" replace />
+              }
             />
             <Route path="/post/:id" element={<Post />} />
           </Routes>

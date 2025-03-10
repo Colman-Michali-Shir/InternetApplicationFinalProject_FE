@@ -14,8 +14,14 @@ import {
   MenuItem,
   Avatar,
 } from '@mui/material';
-import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
-import SavePostModal from './SavePostModal';
+import {
+  Menu,
+  CloseRounded,
+  Home,
+  AccountCircle,
+  Logout,
+} from '@mui/icons-material';
+import SavePostModal from './Post/SavePostModal';
 import { useUserContext } from '../UserContext';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -76,10 +82,19 @@ const TopBar = ({ logoutUser }: { logoutUser: () => void }) => {
               >
                 <Logout />
               </IconButton>
-              <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
+              <IconButton
+                color="primary"
+                aria-label="Home"
+                component={RouterLink}
+                to="/"
+              >
                 <Home />
               </IconButton>
-              <Button variant="text" size="medium" onClick={() => setIsPostUploadModalOpen(true)}>
+              <Button
+                variant="text"
+                size="medium"
+                onClick={() => setIsPostUploadModalOpen(true)}
+              >
                 Upload
               </Button>
               <SavePostModal
@@ -109,7 +124,12 @@ const TopBar = ({ logoutUser }: { logoutUser: () => void }) => {
               alignItems: 'center',
             }}
           >
-            <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
+            <IconButton
+              color="primary"
+              aria-label="Profile"
+              component={RouterLink}
+              to="/profile"
+            >
               {userContext?.profileImage ? (
                 <Avatar
                   src={userContext.profileImage}
@@ -148,11 +168,19 @@ const TopBar = ({ logoutUser }: { logoutUser: () => void }) => {
                   </IconButton>
                 </Box>
 
-                <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
+                <MenuItem
+                  component={RouterLink}
+                  to="/"
+                  onClick={toggleDrawer(false)}
+                >
                   Home
                 </MenuItem>
                 <MenuItem onClick={handleUpload}>Upload</MenuItem>
-                <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
+                <MenuItem
+                  onClick={handleLogout}
+                  component={RouterLink}
+                  to="/login"
+                >
                   Logout
                 </MenuItem>
                 <Divider sx={{ my: 3 }} />

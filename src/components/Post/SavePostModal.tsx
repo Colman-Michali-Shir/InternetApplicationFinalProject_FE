@@ -15,10 +15,10 @@ import {
 import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-import userService from '../services/userService';
-import postsService, { IPost, IPostDB } from '../services/postsService';
+import userService from '../../services/userService';
+import postsService, { IPost, IPostDB } from '../../services/postsService';
 import { HttpStatusCode } from 'axios';
-import { useUserContext } from '../UserContext';
+import { useUserContext } from '../../UserContext';
 
 interface FormData {
   title?: string;
@@ -62,8 +62,6 @@ const SavePostModal = ({
 
   useEffect(() => {
     if (imageFile?.[0]) {
-      console.log('2');
-
       setSelectedImage(URL.createObjectURL(imageFile[0]));
     }
   }, [imageFile]);
@@ -78,7 +76,8 @@ const SavePostModal = ({
     try {
       if (userContext) {
         if (img && title && rating) {
-          const uploadImageResponse = (await userService.uploadImage(img[0])).response;
+          const uploadImageResponse = (await userService.uploadImage(img[0]))
+            .response;
           const imageUrl = uploadImageResponse.data.url;
 
           const postData: Omit<IPostDB, '_id'> = {
@@ -94,8 +93,9 @@ const SavePostModal = ({
           };
 
           if (post) {
-            const editPostResponse = (await postsService.updatePost({ ...postData, _id: post._id }))
-              .response;
+            const editPostResponse = (
+              await postsService.updatePost({ ...postData, _id: post._id })
+            ).response;
             if (editPostResponse.status === HttpStatusCode.Ok) {
               setPostState?.(editPostResponse.data);
               toast.success('Edit a post successfully');
@@ -104,7 +104,8 @@ const SavePostModal = ({
               toast.error('Failed to edit post');
             }
           } else {
-            const createPostResponse = (await postsService.createPost(postData)).response;
+            const createPostResponse = (await postsService.createPost(postData))
+              .response;
             if (createPostResponse.status === HttpStatusCode.Created) {
               toast.success('Upload a post successfully');
               handleCloseModal();
