@@ -12,14 +12,15 @@ import {
   DialogTitle,
   DialogActions,
   Button,
+  styled,
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { Delete, Edit, Favorite, ModeComment } from '@mui/icons-material';
 import postsService, { IPost } from '../../services/postsService';
 import PostExtraDetails from '../Comment/CommentsList';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../../UserContext';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
@@ -50,7 +51,6 @@ const User = ({
     try {
       const { response } = await postsService.deletePost(post._id);
       if (response.status === HttpStatusCode.Ok) {
-        toast.success('Post deleted successfully');
         navigate('/');
       }
     } catch (error) {
@@ -72,6 +72,8 @@ const User = ({
       sx={{
         display: 'flex',
         justifyContent: 'space-between',
+        flexDirection: 'row',
+        alignItems: 'center',
         padding: '16px',
         position: 'relative',
       }}
@@ -125,54 +127,128 @@ const BottomBar = ({
   likesCount,
   commentsCount,
   rating,
-  commentsCountRef,
+  shouldExtraDetails,
 }: {
   likesCount: number;
   commentsCount: number;
   rating: number;
-  commentsCountRef: React.RefObject<HTMLSpanElement | null>;
-}) => (
-  <Box
-    sx={{ display: 'flex', justifyContent: 'space-between', padding: '16px' }}
-  >
-    <Box sx={{ display: 'flex', gap: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Favorite sx={{ color: pink[500] }} />
-        <Typography variant="subtitle1">{likesCount}</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <ModeComment />
-        <Typography ref={commentsCountRef} variant="subtitle1">
-          {commentsCount}
-        </Typography>
-      </Box>
-    </Box>
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Rating name="read-only-rating" value={rating} readOnly />
-    </Box>
-  </Box>
-);
+  shouldExtraDetails: boolean;
+}) => {
+  //TODO: update after refresh page
+  const [commentsCountState, setCommentsCountState] =
+    useState<number>(commentsCount);
 
-const Post = ({ post }: { post?: IPost }) => {
-  const { state } = useLocation();
-  const navigate = useNavigate();
-  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
-  const { userContext } = useUserContext();
-
-  const [postState, setPostState] = useState<IPost>(state?.post || post);
-  const shouldExtraDetailsState = state?.shouldExtraDetails ?? false;
-  const { postedBy, image, title, content, likesCount, commentsCount, rating } =
-    postState || {};
-  const isOwner = postedBy._id === userContext?._id;
-
-  const commentsCountRef = useRef<HTMLSpanElement>(null);
-
-  const updateCommentsCount = useCallback(() => {
-    if (commentsCountRef.current) {
-      const currentCount = Number(commentsCountRef.current.textContent) || 0;
-      commentsCountRef.current.textContent = (currentCount + 1).toString();
-    }
+  const updateCommentsCount = useCallback((newCommentsCount: number) => {
+    setCommentsCountState(newCommentsCount);
   }, []);
+
+  return (
+    <Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 2,
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 2,
+            alignItems: 'center',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 0.7,
+              alignItems: 'center',
+            }}
+          >
+            <Favorite sx={{ color: pink[500] }} />
+            <Typography variant="subtitle1">{likesCount}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 0.7,
+              alignItems: 'center',
+            }}
+          >
+            <ModeComment />
+            <Typography variant="subtitle1">{commentsCountState}</Typography>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 0.7,
+            alignItems: 'center',
+          }}
+        >
+          <Rating name="read-only-rating" value={rating} readOnly />
+        </Box>
+      </Box>
+
+      {shouldExtraDetails && (
+        <PostExtraDetails
+          updateCommentsCount={updateCommentsCount}
+          commentsCount={commentsCountState}
+        />
+      )}
+    </Box>
+  );
+};
+
+const Post = ({
+  post,
+  shouldExtraDetails = false,
+}: {
+  post: IPost;
+  shouldExtraDetails?: boolean;
+}) => {
+  const StyledCard = styled(Card)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    padding: 0,
+    height: '100%',
+    backgroundColor: theme.palette.background.paper,
+    '&:hover': {
+      backgroundColor: 'transparent',
+      cursor: 'pointer',
+    },
+    '&:focus-visible': {
+      outline: '3px solid',
+      outlineColor: 'hsla(210, 98%, 48%, 0.5)',
+      outlineOffset: '2px',
+    },
+  }));
+
+  const StyledCardContent = styled(CardContent)({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    padding: 16,
+    flexGrow: 1,
+    '&:last-child': {
+      paddingBottom: 16,
+    },
+  });
+  const navigate = useNavigate();
+  const { userContext } = useUserContext();
+  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
+  const [postState, setPostState] = useState<IPost>(post);
+
+  const { postedBy, image, title, content, likesCount, commentsCount, rating } =
+    postState;
+  const isOwner = postedBy._id === userContext?._id;
 
   const handleEditClick = () => {
     setIsPostUploadModalOpen(true);
@@ -183,67 +259,51 @@ const Post = ({ post }: { post?: IPost }) => {
   };
 
   return (
-    <>
-      {postState && (
-        <Card
-          variant="outlined"
-          sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-          onClick={() =>
-            !shouldExtraDetailsState &&
-            navigate(`/post/${postState._id}`, {
-              state: { post: postState, shouldExtraDetails: true },
-            })
-          }
+    <StyledCard
+      variant="outlined"
+      tabIndex={0}
+      onClick={() => !shouldExtraDetails && navigate(`/post/${postState._id}`)}
+    >
+      <User
+        post={postState}
+        user={postedBy}
+        isOwner={isOwner && shouldExtraDetails}
+        onEditClick={handleEditClick}
+        onClose={handleModalClose}
+        isPostUploadModalOpen={isPostUploadModalOpen}
+        setPostState={setPostState}
+      />
+      <CardMedia
+        component="img"
+        image={image}
+        sx={{
+          aspectRatio: '16 / 9',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }}
+      />
+      <StyledCardContent>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ marginLeft: 'auto' }}
         >
-          <User
-            post={postState}
-            user={postedBy}
-            isOwner={isOwner && shouldExtraDetailsState}
-            onEditClick={handleEditClick}
-            onClose={handleModalClose}
-            isPostUploadModalOpen={isPostUploadModalOpen}
-            setPostState={setPostState}
-          />
-          <CardMedia
-            component="img"
-            image={image}
-            sx={{
-              aspectRatio: '16 / 9',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-            }}
-          />
-          <CardContent sx={{ flexGrow: 1, padding: 2 }}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ marginLeft: 'auto' }}
-            >
-              {moment(postState.createdAt).fromNow()}
-            </Typography>
-            <Typography variant="h6" component="div">
-              {title}
-            </Typography>
-            <StyledTypography
-              variant="body2"
-              color="text.secondary"
-              gutterBottom
-            >
-              {content}
-            </StyledTypography>
-          </CardContent>
-          <BottomBar
-            commentsCountRef={commentsCountRef}
-            likesCount={likesCount}
-            commentsCount={commentsCount}
-            rating={rating}
-          />
-          {shouldExtraDetailsState && (
-            <PostExtraDetails updateCommentsCount={updateCommentsCount} />
-          )}
-        </Card>
-      )}
-    </>
+          {moment(postState.createdAt).fromNow()}
+        </Typography>
+        <Typography gutterBottom variant="h6" component="div">
+          {title}
+        </Typography>
+        <StyledTypography variant="body2" color="text.secondary" gutterBottom>
+          {content}
+        </StyledTypography>
+      </StyledCardContent>
+      <BottomBar
+        likesCount={likesCount}
+        commentsCount={commentsCount}
+        rating={rating}
+        shouldExtraDetails={shouldExtraDetails}
+      />
+    </StyledCard>
   );
 };
 

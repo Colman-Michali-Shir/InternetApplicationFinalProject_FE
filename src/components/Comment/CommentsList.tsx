@@ -17,7 +17,13 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 const PostExtraDetails = React.memo(
-  ({ updateCommentsCount }: { updateCommentsCount: () => void }) => {
+  ({
+    updateCommentsCount,
+    commentsCount,
+  }: {
+    updateCommentsCount: (newCommentsCount: number) => void;
+    commentsCount: number;
+  }) => {
     const [comments, setComments] = useState<IComment[]>([]);
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState<string>('');
@@ -42,7 +48,6 @@ const PostExtraDetails = React.memo(
             const newComments = response.data;
 
             setComments((prevComments) => [...prevComments, ...newComments]);
-            setCurrentPage((prev) => prev + 1);
             setHasMore(newComments.length === limit);
           }
         } catch {
@@ -55,9 +60,10 @@ const PostExtraDetails = React.memo(
 
     useEffect(() => {
       fetchCommentsByPostId();
-    }, []);
+    }, [currentPage]);
 
     const onDeleteComment = (commentId: string) => {
+      updateCommentsCount(commentsCount - 1);
       setComments((prevComments) =>
         prevComments.filter((c) => c._id !== commentId),
       );
@@ -90,9 +96,7 @@ const PostExtraDetails = React.memo(
               { user: userContext, ...response.data },
             ]);
             setNewComment('');
-            //TODO: fix it
-            updateCommentsCount();
-            toast.success('Comment added successfully');
+            updateCommentsCount(commentsCount + 1);
           }
         } catch {
           toast.error('Error adding comment');
@@ -104,7 +108,7 @@ const PostExtraDetails = React.memo(
       <Box>
         <InfiniteScroll
           dataLength={comments.length}
-          next={() => fetchCommentsByPostId()}
+          next={() => setCurrentPage((prev) => prev + 1)}
           hasMore={hasMore}
           loader={
             loading && (
@@ -128,12 +132,12 @@ const PostExtraDetails = React.memo(
         >
           <Box
             sx={{
-              maxHeight: '400px',
+              maxHeight: '300px',
               overflowY: 'auto',
             }}
             id="comments-list"
           >
-            <List>
+            <List id="comments-list">
               {comments.map((comment) => (
                 <Comment
                   key={comment._id}

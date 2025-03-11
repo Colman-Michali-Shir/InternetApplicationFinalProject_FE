@@ -51,4 +51,12 @@ const getPosts = async (postedBy?: string, lastPostId?: string) => {
   return { response, abort: () => abortController.abort() };
 };
 
-export default { createPost, updatePost, deletePost, getPosts };
+const getPostById = async (postId?: string) => {
+  const abortController = new AbortController();
+  const response = await apiClient.get(`/posts/${postId}`, {
+    signal: abortController.signal,
+  });
+  return { response, abort: () => abortController.abort() };
+};
+
+export default { createPost, updatePost, deletePost, getPosts, getPostById };

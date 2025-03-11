@@ -26,6 +26,7 @@ interface FormData {
   rating?: number;
   img?: File[];
 }
+
 const SavePostModal = ({
   post,
   open,
@@ -50,21 +51,18 @@ const SavePostModal = ({
 
   const { userContext } = useUserContext();
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  const isSubmitDisabled = !title || !imageFile?.length || !rating;
-
-  useEffect(() => {
-    if (post?.image) {
-      setSelectedImage(post.image);
-    }
-  }, [post]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(
+    post?.image || null,
+  );
 
   useEffect(() => {
     if (imageFile?.[0]) {
       setSelectedImage(URL.createObjectURL(imageFile[0]));
     }
   }, [imageFile]);
+
+  const isSubmitDisabled =
+    !title || (!imageFile?.length && !post?.image) || !rating;
 
   const handleCloseModal = () => {
     handleClose();
@@ -76,15 +74,18 @@ const SavePostModal = ({
     try {
       if (userContext) {
         if (img && title && rating) {
-          const uploadImageResponse = (await userService.uploadImage(img[0]))
-            .response;
-          const imageUrl = uploadImageResponse.data.url;
+          let imageUrl;
+          if (imageFile?.length && imageFile?.[0].name !== post?.image) {
+            const uploadImageResponse = (await userService.uploadImage(img[0]))
+              .response;
+            imageUrl = uploadImageResponse.data.url;
+          }
 
           const postData: Omit<IPostDB, '_id'> = {
             postedBy: userContext._id,
             title: title,
             content,
-            image: imageUrl,
+            image: imageUrl || post?.image,
             rating: rating,
             likesCount: 0,
             commentsCount: 0,

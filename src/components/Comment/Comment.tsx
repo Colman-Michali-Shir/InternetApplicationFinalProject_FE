@@ -122,7 +122,7 @@ const Comment = ({
           <ListItemText
             primary={comment.user.username}
             secondary={
-              <Typography variant="body2" color="text.secondary">
+              <Typography component="div" variant="body2" color="textSecondary">
                 <TruncatedParagraph>{comment.content}</TruncatedParagraph>
               </Typography>
             }
