@@ -87,8 +87,8 @@ const SavePostModal = ({
             content,
             image: imageUrl || post?.image,
             rating: rating,
-            likesCount: 0,
-            commentsCount: 0,
+            likesCount: post?.likesCount || 0,
+            commentsCount: post?.commentsCount || 0,
             createdAt: new Date(),
             updatedAt: new Date(),
           };
@@ -98,7 +98,10 @@ const SavePostModal = ({
               await postsService.updatePost({ ...postData, _id: post._id })
             ).response;
             if (editPostResponse.status === HttpStatusCode.Ok) {
-              setPostState?.(editPostResponse.data);
+              setPostState?.({
+                ...editPostResponse.data,
+                postedBy: userContext,
+              });
               toast.success('Edit a post successfully');
               handleCloseModal();
             } else {

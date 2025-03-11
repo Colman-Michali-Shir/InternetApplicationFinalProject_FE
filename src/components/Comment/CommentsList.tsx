@@ -72,7 +72,9 @@ const PostExtraDetails = React.memo(
     const onEditComment = (updatedComment: IComment) => {
       setComments((prevComments) =>
         prevComments.map((comment) =>
-          comment._id === updatedComment._id ? updatedComment : comment,
+          comment._id === updatedComment._id
+            ? { ...comment, content: updatedComment.content }
+            : comment,
         ),
       );
     };
