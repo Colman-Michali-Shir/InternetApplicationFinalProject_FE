@@ -38,8 +38,6 @@ const RecommendationPage = () => {
         } = response;
         setLoading(false);
         setRestaurant({ name, description, url });
-
-        toast.success('Restaurant recommendation loaded!');
       } else {
         toast.error('Failed to load restaurant.');
       }
