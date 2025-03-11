@@ -15,10 +15,11 @@ export interface IPost {
 
 const accessToken = localStorage.getItem('accessToken');
 
-export interface IPostDB extends Omit<IPost, '_id' | 'postedBy'> {
+export interface IPostSave extends Omit<IPost, '_id' | 'postedBy'> {
   postedBy: string;
 }
-const createPost = async (post: IPostDB) => {
+
+const createPost = async (post: IPostSave) => {
   const abortController = new AbortController();
   const response = await apiClient.post('/posts', post, {
     signal: abortController.signal,

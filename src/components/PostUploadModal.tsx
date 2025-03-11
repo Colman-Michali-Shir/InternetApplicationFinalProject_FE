@@ -16,7 +16,7 @@ import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 import userService, { IUser } from '../services/userService';
-import postsService, { IPostDB } from '../services/postsService';
+import postsService, { IPostSave } from '../services/postsService';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { useUserContext } from '../UserContext';
 
@@ -67,7 +67,7 @@ const PostUploadModal = ({
           const uploadImageResponse = (await userService.uploadImage(img[0])).response;
           const imageUrl = uploadImageResponse.data.url;
 
-          const postData: IPostDB = {
+          const postData: IPostSave = {
             postedBy: userContext._id,
             title: title,
             content: content,
@@ -146,6 +146,7 @@ const PostUploadModal = ({
           <Controller
             name="rating"
             control={control}
+            defaultValue={0}
             render={({ field }) => <Rating {...field} />}
           />
           <Box mt={2} display="flex" alignItems="center">
