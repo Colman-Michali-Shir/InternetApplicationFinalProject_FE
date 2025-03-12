@@ -98,7 +98,7 @@ const PostUploadModal = ({
         refreshToken
       ) {
         try {
-          const { response: refreshResponse } = await userService.refresh(refreshToken);
+          const { response: refreshResponse } = await userService.refresh();
           if (refreshResponse.status === HttpStatusCode.Ok) {
             storeUserSession(refreshResponse.data);
             const createPostResponse = (

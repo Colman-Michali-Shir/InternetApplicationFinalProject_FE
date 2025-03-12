@@ -15,7 +15,15 @@ import {
   Avatar,
   Fab,
 } from '@mui/material';
-import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
+import {
+  Menu,
+  CloseRounded,
+  Home,
+  AccountCircle,
+  Logout,
+  Recommend,
+  Upload,
+} from '@mui/icons-material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../UserContext';
 import { IUser } from '../services/userService';
@@ -63,10 +71,7 @@ const TopBar = ({
     localStorage.removeItem('accessToken');
     logoutUser();
   };
-  const handleUpload = () => {
-    setIsDrawerOpen(false);
-    setIsPostUploadModalOpen(true);
-  };
+
   return (
     <>
       <HideOnScroll>
@@ -96,9 +101,21 @@ const TopBar = ({
                   <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
                     <Home />
                   </IconButton>
-                  <Button variant="text" size="medium" onClick={togglePostUploadModal(true)}>
-                    Upload
-                  </Button>
+                  <IconButton
+                    color="primary"
+                    aria-label="Upload"
+                    onClick={togglePostUploadModal(true)}
+                  >
+                    <Upload />
+                  </IconButton>
+                  <IconButton
+                    color="primary"
+                    aria-label="Recommendation"
+                    component={RouterLink}
+                    to="/recommendation"
+                  >
+                    <Recommend />
+                  </IconButton>
                   <PostUploadModal
                     open={isPostUploadModalOpen}
                     handleClose={togglePostUploadModal(false)}
@@ -171,11 +188,19 @@ const TopBar = ({
                         <CloseRounded />
                       </IconButton>
                     </Box>
-
                     <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
                       Home
                     </MenuItem>
-                    <MenuItem onClick={handleUpload}>Upload</MenuItem>
+                    <MenuItem component={RouterLink} to="/upload" onClick={toggleDrawer(false)}>
+                      Upload
+                    </MenuItem>
+                    <MenuItem
+                      component={RouterLink}
+                      to="/recommendation"
+                      onClick={toggleDrawer(false)}
+                    >
+                      Recommendation
+                    </MenuItem>
                     <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
                       Logout
                     </MenuItem>
