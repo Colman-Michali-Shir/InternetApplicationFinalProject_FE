@@ -21,6 +21,7 @@ import { useUserContext } from '../UserContext';
 import { IUser } from '../services/userService';
 import HideOnScroll from './Scroll/HideOnScroll';
 import ScrollTop from './Scroll/ScrollTop';
+import PostUploadModal from './PostUploadModal';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -56,6 +57,12 @@ const TopBar = ({
     setIsPostUploadModalOpen(newOpen);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('accessToken');
+    logoutUser();
+  };
   const handleUpload = () => {
     setIsDrawerOpen(false);
     setIsPostUploadModalOpen(true);
@@ -64,7 +71,7 @@ const TopBar = ({
     <>
       <HideOnScroll>
         <AppBar
-          position="fixed"
+          position="static"
           enableColorOnDark
           sx={{
             boxShadow: 0,
@@ -78,7 +85,7 @@ const TopBar = ({
               <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', px: 0 }}>
                 <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                   <IconButton
-                    onClick={logoutUser}
+                    onClick={handleLogout}
                     color="primary"
                     aria-label="Logout"
                     component={RouterLink}
@@ -92,6 +99,12 @@ const TopBar = ({
                   <Button variant="text" size="medium" onClick={togglePostUploadModal(true)}>
                     Upload
                   </Button>
+                  <PostUploadModal
+                    open={isPostUploadModalOpen}
+                    handleClose={togglePostUploadModal(false)}
+                    storeUserSession={storeUserSession}
+                    clearUserSession={logoutUser}
+                  />
                 </Box>
               </Box>
 
@@ -163,7 +176,7 @@ const TopBar = ({
                       Home
                     </MenuItem>
                     <MenuItem onClick={handleUpload}>Upload</MenuItem>
-                    <MenuItem onClick={logoutUser} component={RouterLink} to="/login">
+                    <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
                       Logout
                     </MenuItem>
                     <Divider sx={{ my: 3 }} />
