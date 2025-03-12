@@ -10,39 +10,11 @@ import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
 
 const App = () => {
-  const { setUserContext } = useUserContext();
+  const { setUserContext, storeUserSession, clearUserSession } = useUserContext();
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-
-  const storeUserSession = (userData: {
-    accessToken: string;
-    refreshToken: string;
-    user: IUser;
-  }) => {
-    const { user, accessToken, refreshToken } = userData;
-    setUserContext({
-      username: user.username,
-      _id: user._id,
-      profileImage: user.profileImage,
-    });
-    setUser(user);
-    localStorage.setItem('userId', user._id);
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    setIsLoading(false);
-  };
-
-  const clearUserSession = () => {
-    setUserContext(null);
-    setUser(null);
-    localStorage.removeItem('userId');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/login', { replace: true });
-    setIsLoading(false);
-  };
 
   const handleLoginSuccess = (userData: {
     accessToken: string;
@@ -69,8 +41,8 @@ const App = () => {
 
         if (response.status === HttpStatusCode.Ok) {
           setUserContext({
-            username: response.data.username,
             _id: response.data._id,
+            username: response.data.username,
             profileImage: response.data.profileImage,
           });
           setUser(response.data);
@@ -104,7 +76,7 @@ const App = () => {
 
   return (
     <>
-      {user && <TopBar user={user} logoutUser={clearUserSession} />}
+      {user && <TopBar logoutUser={clearUserSession} storeUserSession={storeUserSession} />}
       <CssBaseline enableColorScheme />
       <Container
         maxWidth="lg"
@@ -133,10 +105,7 @@ const App = () => {
                 )
               }
             />
-            <Route
-              path="/"
-              element={user ? <HomePage user={user} /> : <Navigate to="/login" replace />}
-            />
+            <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" replace />} />
             <Route
               path="/profile"
               element={user ? <ProfilePage /> : <Navigate to="/login" replace />}

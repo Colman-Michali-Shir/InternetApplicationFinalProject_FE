@@ -15,6 +15,8 @@ import {
   Avatar,
 } from '@mui/material';
 import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
+import PostUploadModal from './PostUploadModal';
+import { useUserContext } from '../UserContext';
 import { IUser } from '../services/userService';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -32,11 +34,23 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: () => void }) {
-  const [open, setOpen] = useState(false);
+const TopBar = ({
+  logoutUser,
+  storeUserSession,
+}: {
+  logoutUser: () => void;
+  storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
+}) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
+  const { userContext } = useUserContext();
 
   const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
+    setIsDrawerOpen(newOpen);
+  };
+
+  const togglePostUploadModal = (newOpen: boolean) => () => {
+    setIsPostUploadModalOpen(newOpen);
   };
 
   const handleLogout = () => {
@@ -45,7 +59,10 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
     localStorage.removeItem('accessToken');
     logoutUser();
   };
-
+  const handleUpload = () => {
+    setIsDrawerOpen(false);
+    setIsPostUploadModalOpen(true);
+  };
   return (
     <AppBar
       position="fixed"
@@ -73,9 +90,15 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
               <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
                 <Home />
               </IconButton>
-              <Button variant="text" size="medium">
+              <Button variant="text" size="medium" onClick={togglePostUploadModal(true)}>
                 Upload
               </Button>
+              <PostUploadModal
+                open={isPostUploadModalOpen}
+                handleClose={togglePostUploadModal(false)}
+                storeUserSession={storeUserSession}
+                clearUserSession={logoutUser}
+              ></PostUploadModal>
             </Box>
           </Box>
 
@@ -100,8 +123,12 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
             }}
           >
             <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
-              {user.profileImage ? (
-                <Avatar src={user.profileImage} alt="Profile" sx={{ width: 25, height: 25 }} />
+              {userContext?.profileImage ? (
+                <Avatar
+                  src={userContext.profileImage}
+                  alt="Profile"
+                  sx={{ width: 25, height: 25 }}
+                />
               ) : (
                 <AccountCircle />
               )}
@@ -114,7 +141,7 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
             </IconButton>
             <Drawer
               anchor="top"
-              open={open}
+              open={isDrawerOpen}
               onClose={toggleDrawer(false)}
               PaperProps={{
                 sx: {
@@ -137,9 +164,7 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
                 <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
                   Home
                 </MenuItem>
-                <MenuItem component={RouterLink} to="/upload" onClick={toggleDrawer(false)}>
-                  Upload
-                </MenuItem>
+                <MenuItem onClick={handleUpload}>Upload</MenuItem>
                 <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
                   Logout
                 </MenuItem>
@@ -162,4 +187,6 @@ export default function TopBar({ user, logoutUser }: { user: IUser; logoutUser: 
       </Container>
     </AppBar>
   );
-}
+};
+
+export default TopBar;
