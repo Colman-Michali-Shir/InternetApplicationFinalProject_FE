@@ -11,36 +11,10 @@ import { useUserContext } from './UserContext';
 import RecommendationPage from './pages/RecommendationPage';
 
 const App = () => {
-  const { userContext, setUserContext } = useUserContext();
+  const { userContext, setUserContext, storeUserSession, clearUserSession } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-
-  const storeUserSession = (userData: {
-    accessToken: string;
-    refreshToken: string;
-    user: IUser;
-  }) => {
-    const { user, accessToken, refreshToken } = userData;
-    setUserContext({
-      username: user.username,
-      _id: user._id,
-      profileImage: user.profileImage,
-    });
-    localStorage.setItem('userId', user._id);
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    setIsLoading(false);
-  };
-
-  const clearUserSession = () => {
-    setUserContext(null);
-    localStorage.removeItem('userId');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/login', { replace: true });
-    setIsLoading(false);
-  };
 
   const handleLoginSuccess = (userData: {
     accessToken: string;
