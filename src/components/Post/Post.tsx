@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { Favorite, ModeComment } from '@mui/icons-material';
-import { IPost } from '../services/postsService';
+import { IPost } from '../../services/postsService';
 
 const User = ({ user }: { user: { username: string; profileImage?: string } }) => {
   return (

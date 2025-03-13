@@ -15,10 +15,10 @@ import {
 import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-import userService, { IUser } from '../services/userService';
-import postsService, { IPostSave } from '../services/postsService';
+import userService, { IUser } from '../../services/userService';
+import postsService, { IPostSave } from '../../services/postsService';
 import { AxiosError, HttpStatusCode } from 'axios';
-import { useUserContext } from '../UserContext';
+import { useUserContext } from '../../UserContext';
 
 interface FormData {
   title?: string;

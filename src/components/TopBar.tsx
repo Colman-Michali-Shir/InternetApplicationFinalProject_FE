@@ -15,7 +15,7 @@ import {
   Avatar,
 } from '@mui/material';
 import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
-import PostUploadModal from './PostUploadModal';
+import PostUploadModal from './Post/PostUploadModal';
 import { useUserContext } from '../UserContext';
 import { IUser } from '../services/userService';
 
