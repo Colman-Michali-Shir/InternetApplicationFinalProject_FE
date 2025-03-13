@@ -89,8 +89,6 @@ const SavePostModal = ({
             rating: rating,
             likesCount: post?.likesCount || 0,
             commentsCount: post?.commentsCount || 0,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           };
 
           if (post) {
