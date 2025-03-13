@@ -26,7 +26,6 @@ import {
 } from '@mui/icons-material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../UserContext';
-import { IUser } from '../services/userService';
 import ScrollTop from './Scroll/ScrollTop';
 import PostUploadModal from './PostUploadModal';
 
@@ -45,16 +44,10 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-const TopBar = ({
-  logoutUser,
-  storeUserSession,
-}: {
-  logoutUser: () => void;
-  storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
-}) => {
+const TopBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
-  const { userContext } = useUserContext();
+  const { userContext, clearUserSession } = useUserContext();
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setIsDrawerOpen(newOpen);
@@ -68,7 +61,7 @@ const TopBar = ({
     localStorage.removeItem('userId');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('accessToken');
-    logoutUser();
+    clearUserSession();
   };
 
   return (
@@ -117,8 +110,6 @@ const TopBar = ({
                 <PostUploadModal
                   open={isPostUploadModalOpen}
                   handleClose={togglePostUploadModal(false)}
-                  storeUserSession={storeUserSession}
-                  clearUserSession={logoutUser}
                 />
               </Box>
             </Box>

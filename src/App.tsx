@@ -74,9 +74,7 @@ const App = () => {
 
   return (
     <>
-      {userContext?._id && (
-        <TopBar logoutUser={clearUserSession} storeUserSession={storeUserSession} />
-      )}
+      {userContext?._id && <TopBar />}
       <CssBaseline enableColorScheme />
       <Container maxWidth="lg" component="main" sx={{ display: 'flex', flexDirection: 'column' }}>
         {isLoading ? (
