@@ -8,10 +8,10 @@ import TopBar from './components/TopBar';
 import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
+import RecommendationPage from './pages/RecommendationPage';
 
 const App = () => {
-  const { setUserContext, storeUserSession, clearUserSession } = useUserContext();
-  const [user, setUser] = useState<IUser | null>(null);
+  const { userContext, setUserContext, storeUserSession, clearUserSession } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -40,12 +40,10 @@ const App = () => {
         const { response } = await userService.getUserById(storedUserId, accessToken);
 
         if (response.status === HttpStatusCode.Ok) {
-          setUserContext({
-            _id: response.data._id,
-            username: response.data.username,
-            profileImage: response.data.profileImage,
-          });
-          setUser(response.data);
+          const {
+            data: { _id, username, profileImage },
+          } = response;
+          setUserContext({ _id, username, profileImage });
           setIsLoading(false);
         }
       } catch (error) {
@@ -56,7 +54,7 @@ const App = () => {
           refreshToken
         ) {
           try {
-            const { response: refreshResponse } = await userService.refresh(refreshToken);
+            const { response: refreshResponse } = await userService.refresh();
             if (refreshResponse.status === HttpStatusCode.Ok) {
               storeUserSession(refreshResponse.data);
             } else {
@@ -76,13 +74,9 @@ const App = () => {
 
   return (
     <>
-      {user && <TopBar logoutUser={clearUserSession} storeUserSession={storeUserSession} />}
+      {userContext?._id && <TopBar />}
       <CssBaseline enableColorScheme />
-      <Container
-        maxWidth="lg"
-        component="main"
-        sx={{ display: 'flex', flexDirection: 'column', my: 16, gap: 4 }}
-      >
+      <Container maxWidth="lg" component="main" sx={{ display: 'flex', flexDirection: 'column' }}>
         {isLoading ? (
           <Box
             sx={{
@@ -98,17 +92,24 @@ const App = () => {
             <Route
               path="/login"
               element={
-                user ? (
+                userContext?._id ? (
                   <Navigate to="/" replace />
                 ) : (
                   <Login handleLoginSuccess={handleLoginSuccess} />
                 )
               }
             />
-            <Route path="/" element={user ? <HomePage /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/"
+              element={userContext?._id ? <HomePage /> : <Navigate to="/login" replace />}
+            />
             <Route
               path="/profile"
-              element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
+              element={userContext?._id ? <ProfilePage /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/recommendation"
+              element={userContext?._id ? <RecommendationPage /> : <Navigate to="/login" replace />}
             />
           </Routes>
         )}
