@@ -7,9 +7,10 @@ import {
   Box,
   Avatar,
   Rating,
+  IconButton,
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
-import { Favorite, ModeComment } from '@mui/icons-material';
+import { Favorite, ModeComment, FavoriteBorder } from '@mui/icons-material';
 import { IPost } from '../../services/postsService';
 
 const User = ({ user }: { user: { username: string; profileImage?: string } }) => {
@@ -34,10 +35,12 @@ const BottomBar = ({
   likesCount,
   commentsCount,
   rating,
+  likedByCurrentUser = false,
 }: {
   likesCount: number;
   commentsCount: number;
   rating: number;
+  likedByCurrentUser: boolean;
 }) => {
   return (
     <Box
@@ -52,7 +55,15 @@ const BottomBar = ({
     >
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
-          <Favorite sx={{ color: pink[500] }} />
+          {likedByCurrentUser ? (
+            <IconButton>
+              <Favorite sx={{ color: pink[500] }} />
+            </IconButton>
+          ) : (
+            <IconButton>
+              <FavoriteBorder />
+            </IconButton>
+          )}
           <Typography variant="subtitle1">{likesCount}</Typography>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.7, alignItems: 'center' }}>
@@ -74,10 +85,7 @@ const Post = ({ post }: { post: IPost }) => {
     padding: 0,
     height: '100%',
     backgroundColor: theme.palette.background.paper,
-    '&:hover': {
-      backgroundColor: 'transparent',
-      cursor: 'pointer',
-    },
+
     '&:focus-visible': {
       outline: '3px solid',
       outlineColor: 'hsla(210, 98%, 48%, 0.5)',
@@ -104,7 +112,7 @@ const Post = ({ post }: { post: IPost }) => {
     textOverflow: 'ellipsis',
   });
 
-  const { postedBy, image, title, content, likesCount, commentsCount, rating } = post;
+  const { postedBy, image, title, content, likesCount, commentsCount, rating, liked } = post;
 
   return (
     <SyledCard
@@ -120,6 +128,10 @@ const Post = ({ post }: { post: IPost }) => {
           aspectRatio: '16 / 9',
           borderBottom: '1px solid',
           borderColor: 'divider',
+          '&:hover': {
+            backgroundColor: 'transparent',
+            cursor: 'pointer',
+          },
         }}
       />
       <SyledCardContent>
@@ -130,7 +142,12 @@ const Post = ({ post }: { post: IPost }) => {
           {content}
         </StyledTypography>
       </SyledCardContent>
-      <BottomBar likesCount={likesCount} commentsCount={commentsCount} rating={rating} />
+      <BottomBar
+        likesCount={likesCount}
+        commentsCount={commentsCount}
+        rating={rating}
+        likedByCurrentUser={liked}
+      />
     </SyledCard>
   );
 };

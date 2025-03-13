@@ -11,6 +11,7 @@ export interface IPost {
   rating: number;
   createdAt?: Date;
   updatedAt?: Date;
+  liked: boolean;
 }
 
 const accessToken = localStorage.getItem('accessToken');
