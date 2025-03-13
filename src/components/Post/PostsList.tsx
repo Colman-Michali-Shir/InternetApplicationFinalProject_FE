@@ -6,13 +6,16 @@ import { toast } from 'react-toastify';
 import Post from '../../components/Post/Post';
 import { IPost } from '../../services/postsService';
 import postService from '../../services/postsService';
+import { useUserContext } from '../../UserContext';
 
-const PostsList = ({ userId }: { userId: string | undefined }) => {
+const PostsList = ({ getAll = false }: { getAll: boolean }) => {
+  const { userContext } = useUserContext();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [lastPostId, setLastPostId] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState(false);
 
   const fetchPosts = async () => {
+    const userId = getAll ? undefined : userContext?._id;
     try {
       const response = (await postService.getPosts(userId, lastPostId)).response;
       if (response.status === HttpStatusCode.Ok) {
