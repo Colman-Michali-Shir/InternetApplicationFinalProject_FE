@@ -5,7 +5,6 @@ import {
   CardMedia,
   Box,
   Avatar,
-  Rating,
   IconButton,
   Dialog,
   DialogContent,
@@ -14,24 +13,17 @@ import {
   Button,
   styled,
 } from '@mui/material';
-import { pink } from '@mui/material/colors';
-import {
-  Delete,
-  Edit,
-  Favorite,
-  ModeComment,
-  FavoriteBorder,
-} from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import postsService, { IPost } from '../../services/postsService';
-import PostExtraDetails from '../Comment/CommentsList';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../../UserContext';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
 import moment from 'moment';
 import { StyledTypography } from './StyledTypography';
+import PostBottomBar from './PostBottomBar';
 
 const User = ({
   post,
@@ -129,99 +121,6 @@ const User = ({
   );
 };
 
-const BottomBar = ({
-  likesCount,
-  commentsCount,
-  rating,
-  likedByCurrentUser = false,
-  shouldExtraDetails,
-}: {
-  likesCount: number;
-  commentsCount: number;
-  rating: number;
-  likedByCurrentUser: boolean;
-  shouldExtraDetails: boolean;
-}) => {
-  const [commentsCountState, setCommentsCountState] =
-    useState<number>(commentsCount);
-
-  const updateCommentsCount = useCallback((newCommentsCount: number) => {
-    setCommentsCountState(newCommentsCount);
-  }, []);
-
-  return (
-    <Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 2,
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 0.7,
-              alignItems: 'center',
-            }}
-          >
-            {likedByCurrentUser ? (
-              <IconButton>
-                <Favorite sx={{ color: pink[500] }} />
-              </IconButton>
-            ) : (
-              <IconButton>
-                <FavoriteBorder />
-              </IconButton>
-            )}
-            <Typography variant='subtitle1'>{likesCount}</Typography>
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 0.7,
-              alignItems: 'center',
-            }}
-          >
-            <ModeComment />
-            <Typography variant='subtitle1'>{commentsCountState}</Typography>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 0.7,
-            alignItems: 'center',
-          }}
-        >
-          <Rating name='read-only-rating' value={rating} readOnly />
-        </Box>
-      </Box>
-
-      {shouldExtraDetails && (
-        <PostExtraDetails
-          updateCommentsCount={updateCommentsCount}
-          commentsCount={commentsCountState}
-        />
-      )}
-    </Box>
-  );
-};
-
 const Post = ({
   post,
   shouldExtraDetails = false,
@@ -267,6 +166,7 @@ const Post = ({
     commentsCount,
     rating,
     liked,
+    _id,
   } = postState;
   const isOwner = postedBy._id === userContext?._id;
 
@@ -279,11 +179,7 @@ const Post = ({
   };
 
   return (
-    <StyledCard
-      variant='outlined'
-      tabIndex={0}
-      onClick={() => !shouldExtraDetails && navigate(`/post/${postState._id}`)}
-    >
+    <StyledCard variant='outlined' tabIndex={0}>
       <User
         post={postState}
         user={postedBy}
@@ -305,6 +201,9 @@ const Post = ({
             cursor: 'pointer',
           },
         }}
+        onClick={() =>
+          !shouldExtraDetails && navigate(`/post/${postState._id}`)
+        }
       />
       <StyledCardContent>
         <Typography
@@ -321,12 +220,13 @@ const Post = ({
           {content}
         </StyledTypography>
       </StyledCardContent>
-      <BottomBar
+      <PostBottomBar
         likesCount={likesCount}
         commentsCount={commentsCount}
         rating={rating}
         likedByCurrentUser={liked}
         shouldExtraDetails={shouldExtraDetails}
+        postId={_id}
       />
     </StyledCard>
   );
