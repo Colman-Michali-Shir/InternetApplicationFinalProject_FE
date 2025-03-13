@@ -16,7 +16,7 @@ import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 import userService from '../../services/userService';
-import postsService, { IPost, IPostDB } from '../../services/postsService';
+import postsService, { IPost, IPostSave } from '../../services/postsService';
 import { HttpStatusCode } from 'axios';
 import { useUserContext } from '../../UserContext';
 
@@ -81,7 +81,7 @@ const SavePostModal = ({
             imageUrl = uploadImageResponse.data.url;
           }
 
-          const postData: Omit<IPostDB, '_id'> = {
+          const postData: Omit<IPostSave, '_id'> = {
             postedBy: userContext._id,
             title: title,
             content,

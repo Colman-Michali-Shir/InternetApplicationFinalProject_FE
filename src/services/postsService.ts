@@ -13,10 +13,11 @@ export interface IPost {
   updatedAt?: Date;
 }
 
-export interface IPostDB extends Omit<IPost, 'postedBy'> {
+export interface IPostSave extends Omit<IPost, 'postedBy'> {
   postedBy: string;
 }
-const createPost = async (post: Omit<IPostDB, '_id'>) => {
+
+const createPost = async (post: Omit<IPostSave, '_id'>) => {
   const abortController = new AbortController();
   const response = await apiClient.post('/posts', post, {
     signal: abortController.signal,
@@ -24,7 +25,7 @@ const createPost = async (post: Omit<IPostDB, '_id'>) => {
   return { response, abort: () => abortController.abort() };
 };
 
-const updatePost = async (post: IPostDB) => {
+const updatePost = async (post: IPostSave) => {
   const abortController = new AbortController();
   const response = await apiClient.put(`/posts/${post._id}`, post, {
     signal: abortController.signal,

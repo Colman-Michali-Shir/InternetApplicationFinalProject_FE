@@ -134,7 +134,6 @@ const BottomBar = ({
   rating: number;
   shouldExtraDetails: boolean;
 }) => {
-  //TODO: update after refresh page
   const [commentsCountState, setCommentsCountState] =
     useState<number>(commentsCount);
 

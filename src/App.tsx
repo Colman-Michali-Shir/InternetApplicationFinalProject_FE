@@ -8,39 +8,14 @@ import TopBar from './components/TopBar';
 import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
+import RecommendationPage from './pages/RecommendationPage';
 import PostPage from './pages/PostPage';
 
 const App = () => {
-  const { userContext, setUserContext } = useUserContext();
+  const { userContext, setUserContext, storeUserSession } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-
-  const storeUserSession = (userData: {
-    accessToken: string;
-    refreshToken: string;
-    user: IUser;
-  }) => {
-    const { user, accessToken, refreshToken } = userData;
-    setUserContext({
-      username: user.username,
-      _id: user._id,
-      profileImage: user.profileImage,
-    });
-    localStorage.setItem('userId', user._id);
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    setIsLoading(false);
-  };
-
-  const clearUserSession = () => {
-    setUserContext(null);
-    localStorage.removeItem('userId');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/login', { replace: true });
-    setIsLoading(false);
-  };
 
   const handleLoginSuccess = (userData: {
     accessToken: string;
@@ -66,11 +41,10 @@ const App = () => {
         const { response } = await userService.getUserById(storedUserId);
 
         if (response.status === HttpStatusCode.Ok) {
-          setUserContext({
-            _id: response.data._id,
-            username: response.data.username,
-            profileImage: response.data.profileImage,
-          });
+          const {
+            data: { _id, username, profileImage },
+          } = response;
+          setUserContext({ _id, username, profileImage });
           setIsLoading(false);
         }
       } catch (error) {
@@ -85,12 +59,12 @@ const App = () => {
 
   return (
     <>
-      {userContext && <TopBar logoutUser={clearUserSession} />}
+      {userContext?._id && <TopBar />}
       <CssBaseline enableColorScheme />
       <Container
         maxWidth="lg"
         component="main"
-        sx={{ display: 'flex', flexDirection: 'column', my: 16, gap: 4 }}
+        sx={{ display: 'flex', flexDirection: 'column' }}
       >
         {isLoading ? (
           <Box
@@ -107,7 +81,7 @@ const App = () => {
             <Route
               path="/login"
               element={
-                userContext ? (
+                userContext?._id ? (
                   <Navigate to="/" replace />
                 ) : (
                   <Login handleLoginSuccess={handleLoginSuccess} />
@@ -117,19 +91,41 @@ const App = () => {
             <Route
               path="/"
               element={
-                userContext ? <HomePage /> : <Navigate to="/login" replace />
+                userContext?._id ? (
+                  <HomePage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
             <Route
               path="/profile"
               element={
-                userContext ? <ProfilePage /> : <Navigate to="/login" replace />
+                userContext?._id ? (
+                  <ProfilePage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
             <Route
               path="/post/:id"
               element={
-                userContext ? <PostPage /> : <Navigate to="/login" replace />
+                userContext?._id ? (
+                  <PostPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/recommendation"
+              element={
+                userContext?._id ? (
+                  <RecommendationPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
           </Routes>
