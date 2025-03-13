@@ -78,11 +78,7 @@ const App = () => {
     <>
       {user && <TopBar logoutUser={clearUserSession} storeUserSession={storeUserSession} />}
       <CssBaseline enableColorScheme />
-      <Container
-        maxWidth="lg"
-        component="main"
-        sx={{ display: 'flex', flexDirection: 'column', my: 16, gap: 4 }}
-      >
+      <Container maxWidth="lg" component="main" sx={{ display: 'flex', flexDirection: 'column' }}>
         {isLoading ? (
           <Box
             sx={{

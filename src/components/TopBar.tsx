@@ -13,11 +13,14 @@ import {
   Divider,
   MenuItem,
   Avatar,
+  Fab,
 } from '@mui/material';
 import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
-import PostUploadModal from './PostUploadModal';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../UserContext';
 import { IUser } from '../services/userService';
+import ScrollTop from './Scroll/ScrollTop';
+import PostUploadModal from './PostUploadModal';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -64,128 +67,136 @@ const TopBar = ({
     setIsPostUploadModalOpen(true);
   };
   return (
-    <AppBar
-      position="fixed"
-      enableColorOnDark
-      sx={{
-        boxShadow: 0,
-        bgcolor: 'transparent',
-        backgroundImage: 'none',
-        mt: 'calc(var(--template-frame-height, 0px) + 28px)',
-      }}
-    >
-      <Container maxWidth="lg">
-        <StyledToolbar variant="dense" disableGutters>
-          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', px: 0 }}>
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-              <IconButton
-                onClick={handleLogout}
-                color="primary"
-                aria-label="Logout"
-                component={RouterLink}
-                to="/login"
-              >
-                <Logout />
-              </IconButton>
-              <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
-                <Home />
-              </IconButton>
-              <Button variant="text" size="medium" onClick={togglePostUploadModal(true)}>
-                Upload
-              </Button>
-              <PostUploadModal
-                open={isPostUploadModalOpen}
-                handleClose={togglePostUploadModal(false)}
-                storeUserSession={storeUserSession}
-                clearUserSession={logoutUser}
-              ></PostUploadModal>
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              textAlign: { xs: 'left', md: 'center' },
-              flexGrow: { xs: 1, md: 0 },
-            }}
-          >
-            <Typography variant="h6" fontWeight={600} color="primary">
-              Foodie Finder
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              flex: 1,
-              display: { xs: 'none', md: 'flex' },
-              justifyContent: 'flex-end',
-              gap: 1,
-              alignItems: 'center',
-            }}
-          >
-            <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
-              {userContext?.profileImage ? (
-                <Avatar
-                  src={userContext.profileImage}
-                  alt="Profile"
-                  sx={{ width: 25, height: 25 }}
+    <>
+      <AppBar
+        position="static"
+        enableColorOnDark
+        sx={{
+          boxShadow: 0,
+          bgcolor: 'transparent',
+          backgroundImage: 'none',
+          mt: 'calc(var(--template-frame-height, 0px) + 28px)',
+        }}
+      >
+        <Container maxWidth="lg">
+          <StyledToolbar variant="dense" disableGutters>
+            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', px: 0 }}>
+              <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <IconButton
+                  onClick={handleLogout}
+                  color="primary"
+                  aria-label="Logout"
+                  component={RouterLink}
+                  to="/login"
+                >
+                  <Logout />
+                </IconButton>
+                <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
+                  <Home />
+                </IconButton>
+                <Button variant="text" size="medium" onClick={togglePostUploadModal(true)}>
+                  Upload
+                </Button>
+                <PostUploadModal
+                  open={isPostUploadModalOpen}
+                  handleClose={togglePostUploadModal(false)}
+                  storeUserSession={storeUserSession}
+                  clearUserSession={logoutUser}
                 />
-              ) : (
-                <AccountCircle />
-              )}
-            </IconButton>
-          </Box>
+              </Box>
+            </Box>
 
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
-            <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
-              <Menu />
-            </IconButton>
-            <Drawer
-              anchor="top"
-              open={isDrawerOpen}
-              onClose={toggleDrawer(false)}
-              PaperProps={{
-                sx: {
-                  top: 'var(--template-frame-height, 0px)',
-                },
+            <Box
+              sx={{
+                textAlign: { xs: 'left', md: 'center' },
+                flexGrow: { xs: 1, md: 0 },
               }}
             >
-              <Box sx={{ p: 2, backgroundColor: 'background.default' }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                  }}
-                >
-                  <IconButton onClick={toggleDrawer(false)}>
-                    <CloseRounded />
-                  </IconButton>
-                </Box>
+              <Typography variant="h6" fontWeight={600} color="primary">
+                Foodie Finder
+              </Typography>
+            </Box>
 
-                <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
-                  Home
-                </MenuItem>
-                <MenuItem onClick={handleUpload}>Upload</MenuItem>
-                <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
-                  Logout
-                </MenuItem>
-                <Divider sx={{ my: 3 }} />
-                <MenuItem>
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    fullWidth
-                    component={RouterLink}
-                    to="/profile"
+            <Box
+              sx={{
+                flex: 1,
+                display: { xs: 'none', md: 'flex' },
+                justifyContent: 'flex-end',
+                gap: 1,
+                alignItems: 'center',
+              }}
+            >
+              <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
+                {userContext?.profileImage ? (
+                  <Avatar
+                    src={userContext.profileImage}
+                    alt="Profile"
+                    sx={{ width: 25, height: 25 }}
+                  />
+                ) : (
+                  <AccountCircle />
+                )}
+              </IconButton>
+            </Box>
+
+            <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
+              <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
+                <Menu />
+              </IconButton>
+              <Drawer
+                anchor="top"
+                open={isDrawerOpen}
+                onClose={toggleDrawer(false)}
+                PaperProps={{
+                  sx: {
+                    top: 'var(--template-frame-height, 0px)',
+                  },
+                }}
+              >
+                <Box sx={{ p: 2, backgroundColor: 'background.default' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                    }}
                   >
-                    Profile
-                  </Button>
-                </MenuItem>
-              </Box>
-            </Drawer>
-          </Box>
-        </StyledToolbar>
-      </Container>
-    </AppBar>
+                    <IconButton onClick={toggleDrawer(false)}>
+                      <CloseRounded />
+                    </IconButton>
+                  </Box>
+
+                  <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
+                    Home
+                  </MenuItem>
+                  <MenuItem onClick={handleUpload}>Upload</MenuItem>
+                  <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
+                    Logout
+                  </MenuItem>
+                  <Divider sx={{ my: 3 }} />
+                  <MenuItem>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      fullWidth
+                      component={RouterLink}
+                      to="/profile"
+                    >
+                      Profile
+                    </Button>
+                  </MenuItem>
+                </Box>
+              </Drawer>
+            </Box>
+          </StyledToolbar>
+        </Container>
+      </AppBar>
+      <Toolbar id="back-to-top-anchor" />
+      <ScrollTop>
+        <Fab size="small" aria-label="scroll back to top">
+          <KeyboardArrowUpIcon />
+        </Fab>
+      </ScrollTop>
+    </>
   );
 };
 
