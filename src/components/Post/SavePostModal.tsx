@@ -26,7 +26,7 @@ interface FormData {
   img?: File[];
 }
 
-const PostUploadModal = ({
+const SavePostModal = ({
   post,
   open,
   handleClose,
@@ -190,4 +190,4 @@ const PostUploadModal = ({
   );
 };
 
-export default PostUploadModal;
+export default SavePostModal;

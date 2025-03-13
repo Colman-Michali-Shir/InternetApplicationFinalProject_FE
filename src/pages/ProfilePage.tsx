@@ -4,7 +4,7 @@ import PostsList from '../components/Post/PostsList';
 
 const Profile = () => {
   return (
-    <Box display="flex" flexDirection="column" gap="4">
+    <Box display='flex' flexDirection='column' gap='4'>
       <ProfileData />
       <Divider sx={{ my: 3 }} />
       <PostsList getAll={false} />

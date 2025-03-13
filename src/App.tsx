@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
-import { AxiosError, HttpStatusCode } from 'axios';
+import { HttpStatusCode } from 'axios';
 import { Box, CircularProgress, Container, CssBaseline } from '@mui/material';
 import Login from './pages/Login';
 import HomePage from './pages/HomePage';
@@ -9,9 +9,10 @@ import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
 import RecommendationPage from './pages/RecommendationPage';
+import PostPage from './pages/PostPage';
 
 const App = () => {
-  const { userContext, setUserContext, storeUserSession, clearUserSession } = useUserContext();
+  const { userContext, setUserContext, storeUserSession } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -28,16 +29,16 @@ const App = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const storedUserId = localStorage.getItem('userId');
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
 
-      if (!storedUserId || !accessToken) {
+      if (!storedUserId) {
+        setUserContext(null);
         setIsLoading(false);
+
         return;
       }
 
       try {
-        const { response } = await userService.getUserById(storedUserId, accessToken);
+        const { response } = await userService.getUserById(storedUserId);
 
         if (response.status === HttpStatusCode.Ok) {
           const {
@@ -48,24 +49,8 @@ const App = () => {
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        if (
-          error instanceof AxiosError &&
-          error.response?.status === HttpStatusCode.Unauthorized &&
-          refreshToken
-        ) {
-          try {
-            const { response: refreshResponse } = await userService.refresh();
-            if (refreshResponse.status === HttpStatusCode.Ok) {
-              storeUserSession(refreshResponse.data);
-            } else {
-              clearUserSession();
-            }
-          } catch {
-            clearUserSession();
-          }
-        } else {
-          clearUserSession();
-        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -76,7 +61,11 @@ const App = () => {
     <>
       {userContext?._id && <TopBar />}
       <CssBaseline enableColorScheme />
-      <Container maxWidth="lg" component="main" sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Container
+        maxWidth="lg"
+        component="main"
+        sx={{ display: 'flex', flexDirection: 'column' }}
+      >
         {isLoading ? (
           <Box
             sx={{
@@ -101,15 +90,43 @@ const App = () => {
             />
             <Route
               path="/"
-              element={userContext?._id ? <HomePage /> : <Navigate to="/login" replace />}
+              element={
+                userContext?._id ? (
+                  <HomePage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
             />
             <Route
               path="/profile"
-              element={userContext?._id ? <ProfilePage /> : <Navigate to="/login" replace />}
+              element={
+                userContext?._id ? (
+                  <ProfilePage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/post/:id"
+              element={
+                userContext?._id ? (
+                  <PostPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
             />
             <Route
               path="/recommendation"
-              element={userContext?._id ? <RecommendationPage /> : <Navigate to="/login" replace />}
+              element={
+                userContext?._id ? (
+                  <RecommendationPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
             />
           </Routes>
         )}
