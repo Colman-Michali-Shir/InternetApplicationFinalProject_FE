@@ -15,7 +15,7 @@ import {
 import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-import userService, { IUser } from '../services/userService';
+import userService from '../services/userService';
 import postsService, { IPostSave } from '../services/postsService';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { useUserContext } from '../UserContext';
@@ -26,23 +26,13 @@ interface FormData {
   rating?: number;
   img?: File[];
 }
-const PostUploadModal = ({
-  open,
-  handleClose,
-  storeUserSession,
-  clearUserSession,
-}: {
-  open: boolean;
-  handleClose: () => void;
-  storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
-  clearUserSession: () => void;
-}) => {
+const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: () => void }) => {
   const { register, handleSubmit, watch, reset, control } = useForm();
   const imageFile = watch('img');
   const title = watch('title');
   const rating = watch('rating');
 
-  const { userContext } = useUserContext();
+  const { userContext, clearUserSession, storeUserSession } = useUserContext();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -98,7 +88,7 @@ const PostUploadModal = ({
         refreshToken
       ) {
         try {
-          const { response: refreshResponse } = await userService.refresh(refreshToken);
+          const { response: refreshResponse } = await userService.refresh();
           if (refreshResponse.status === HttpStatusCode.Ok) {
             storeUserSession(refreshResponse.data);
             const createPostResponse = (

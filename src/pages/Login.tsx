@@ -35,6 +35,8 @@ const Login: FC<{
   const { register, handleSubmit, watch, reset } = useForm<FormData>();
 
   const img = watch('img');
+  const username = watch('username');
+  const password = watch('password');
 
   useEffect(() => {
     if (img?.[0]) {
@@ -149,7 +151,14 @@ const Login: FC<{
               margin="normal"
               required
             />
-            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+            <Button
+              disabled={!username || !password}
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 2 }}
+            >
               {isLogin ? 'Login' : 'Register'}
             </Button>
 

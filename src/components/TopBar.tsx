@@ -15,10 +15,17 @@ import {
   Avatar,
   Fab,
 } from '@mui/material';
-import { Menu, CloseRounded, Home, AccountCircle, Logout } from '@mui/icons-material';
+import {
+  Menu,
+  CloseRounded,
+  Home,
+  AccountCircle,
+  Logout,
+  Recommend,
+  Upload,
+} from '@mui/icons-material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../UserContext';
-import { IUser } from '../services/userService';
 import ScrollTop from './Scroll/ScrollTop';
 import PostUploadModal from './PostUploadModal';
 
@@ -37,16 +44,10 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-const TopBar = ({
-  logoutUser,
-  storeUserSession,
-}: {
-  logoutUser: () => void;
-  storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
-}) => {
+const TopBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
-  const { userContext } = useUserContext();
+  const { userContext, clearUserSession } = useUserContext();
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setIsDrawerOpen(newOpen);
@@ -60,12 +61,9 @@ const TopBar = ({
     localStorage.removeItem('userId');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('accessToken');
-    logoutUser();
+    clearUserSession();
   };
-  const handleUpload = () => {
-    setIsDrawerOpen(false);
-    setIsPostUploadModalOpen(true);
-  };
+
   return (
     <>
       <AppBar
@@ -94,14 +92,24 @@ const TopBar = ({
                 <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
                   <Home />
                 </IconButton>
-                <Button variant="text" size="medium" onClick={togglePostUploadModal(true)}>
-                  Upload
-                </Button>
+                <IconButton
+                  color="primary"
+                  aria-label="Upload"
+                  onClick={togglePostUploadModal(true)}
+                >
+                  <Upload />
+                </IconButton>
+                <IconButton
+                  color="primary"
+                  aria-label="Recommendation"
+                  component={RouterLink}
+                  to="/recommendation"
+                >
+                  <Recommend />
+                </IconButton>
                 <PostUploadModal
                   open={isPostUploadModalOpen}
                   handleClose={togglePostUploadModal(false)}
-                  storeUserSession={storeUserSession}
-                  clearUserSession={logoutUser}
                 />
               </Box>
             </Box>
@@ -168,7 +176,14 @@ const TopBar = ({
                   <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
                     Home
                   </MenuItem>
-                  <MenuItem onClick={handleUpload}>Upload</MenuItem>
+                  <MenuItem onClick={toggleDrawer(false)}>Upload</MenuItem>
+                  <MenuItem
+                    component={RouterLink}
+                    to="/recommendation"
+                    onClick={toggleDrawer(false)}
+                  >
+                    Recommendation
+                  </MenuItem>
                   <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
                     Logout
                   </MenuItem>
