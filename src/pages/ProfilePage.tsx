@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import { HttpStatusCode } from 'axios';
-import { Box, Divider, Grid2, Typography, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Divider,
+  Grid2,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
 import { toast } from 'react-toastify';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import ProfileData from '../components/ProfileData';
 import { IPost } from '../services/postsService';
 import postService from '../services/postsService';
 import { useUserContext } from '../UserContext';
-import Post from '../components/Post';
+import Post from '../components/Post/Post';
 
 const Profile = () => {
   const { userContext } = useUserContext();
@@ -21,11 +27,14 @@ const Profile = () => {
       return;
     }
     try {
-      const response = (await postService.getPosts(userId, lastPostId)).response;
+      const response = (await postService.getPosts(userId, lastPostId))
+        .response;
       if (response.status === HttpStatusCode.Ok) {
-        const newPosts = response.data.posts;
-        setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
-        setLastPostId(newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null);
+        const newPosts = response.data;
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+        setLastPostId(
+          newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null,
+        );
         setHasMore(newPosts.length > 0);
       } else {
         toast.error('Failed to load posts.');

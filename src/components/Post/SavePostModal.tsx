@@ -15,10 +15,10 @@ import {
 import { PhotoCamera } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-import userService from '../services/userService';
-import postsService, { IPostSave } from '../services/postsService';
-import { AxiosError, HttpStatusCode } from 'axios';
-import { useUserContext } from '../UserContext';
+import userService from '../../services/userService';
+import postsService, { IPost, IPostSave } from '../../services/postsService';
+import { HttpStatusCode } from 'axios';
+import { useUserContext } from '../../UserContext';
 
 interface FormData {
   title?: string;
@@ -26,23 +26,43 @@ interface FormData {
   rating?: number;
   img?: File[];
 }
-const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: () => void }) => {
-  const { register, handleSubmit, watch, reset, control } = useForm();
+
+const SavePostModal = ({
+  post,
+  open,
+  handleClose,
+  setPostState,
+}: {
+  post?: IPost;
+  open: boolean;
+  handleClose: () => void;
+  setPostState?: React.Dispatch<React.SetStateAction<IPost>>;
+}) => {
+  const { register, handleSubmit, watch, reset, control } = useForm<FormData>({
+    defaultValues: {
+      title: post?.title || '',
+      content: post?.content || '',
+      rating: post?.rating || 0,
+    },
+  });
   const imageFile = watch('img');
   const title = watch('title');
   const rating = watch('rating');
 
-  const { userContext, clearUserSession, storeUserSession } = useUserContext();
+  const { userContext } = useUserContext();
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  const isSubmitDisabled = !title || !imageFile?.length || !rating;
+  const [selectedImage, setSelectedImage] = useState<string | null>(
+    post?.image || null,
+  );
 
   useEffect(() => {
     if (imageFile?.[0]) {
       setSelectedImage(URL.createObjectURL(imageFile[0]));
     }
   }, [imageFile]);
+
+  const isSubmitDisabled =
+    !title || (!imageFile?.length && !post?.image) || !rating;
 
   const handleCloseModal = () => {
     handleClose();
@@ -54,66 +74,58 @@ const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: ()
     try {
       if (userContext) {
         if (img && title && rating) {
-          const uploadImageResponse = (await userService.uploadImage(img[0])).response;
-          const imageUrl = uploadImageResponse.data.url;
+          let imageUrl;
+          if (imageFile?.length && imageFile?.[0].name !== post?.image) {
+            const uploadImageResponse = (await userService.uploadImage(img[0]))
+              .response;
+            imageUrl = uploadImageResponse.data.url;
+          }
 
-          const postData: IPostSave = {
+          const postData: Omit<IPostSave, '_id'> = {
             postedBy: userContext._id,
             title: title,
-            content: content,
-            image: imageUrl,
+            content,
+            image: imageUrl || post?.image,
             rating: rating,
-            likesCount: 0,
-            commentsCount: 0,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            likesCount: post?.likesCount || 0,
+            commentsCount: post?.commentsCount || 0,
           };
 
-          const createPostResponse = (await postsService.createPost(postData)).response;
-          if (createPostResponse.status === HttpStatusCode.Created) {
-            toast.success('Upload a post successfully');
-            handleCloseModal();
-          } else {
-            toast.error('Failed to upload post');
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error creating post:', error);
-      const refreshToken = localStorage.getItem('refreshToken');
-
-      if (
-        error instanceof AxiosError &&
-        error.response?.status === HttpStatusCode.Unauthorized &&
-        refreshToken
-      ) {
-        try {
-          const { response: refreshResponse } = await userService.refresh();
-          if (refreshResponse.status === HttpStatusCode.Ok) {
-            storeUserSession(refreshResponse.data);
-            const createPostResponse = (
-              await postsService.createPost(JSON.parse(error.response.config.data))
+          if (post) {
+            const editPostResponse = (
+              await postsService.updatePost({ ...postData, _id: post._id })
             ).response;
+            if (editPostResponse.status === HttpStatusCode.Ok) {
+              setPostState?.({
+                ...editPostResponse.data,
+                postedBy: userContext,
+              });
+              toast.success('Edit a post successfully');
+              handleCloseModal();
+            } else {
+              toast.error('Failed to edit post');
+            }
+          } else {
+            const createPostResponse = (await postsService.createPost(postData))
+              .response;
             if (createPostResponse.status === HttpStatusCode.Created) {
               toast.success('Upload a post successfully');
               handleCloseModal();
             } else {
               toast.error('Failed to upload post');
             }
-          } else {
-            clearUserSession();
           }
-        } catch {
-          clearUserSession();
         }
       }
+    } catch (error) {
+      console.error('Error creating post:', error);
     }
   };
 
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="sm">
       <DialogTitle color="primary" sx={{ fontWeight: 'bold' }}>
-        Upload a Post
+        {post ? 'Edit Post' : 'Upload a Post'}
       </DialogTitle>
       <DialogContent>
         <Box component="form">
@@ -136,7 +148,6 @@ const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: ()
           <Controller
             name="rating"
             control={control}
-            defaultValue={0}
             render={({ field }) => <Rating {...field} />}
           />
           <Box mt={2} display="flex" alignItems="center">
@@ -173,11 +184,11 @@ const PostUploadModal = ({ open, handleClose }: { open: boolean; handleClose: ()
           variant="contained"
           color="primary"
         >
-          Submit
+          {post ? 'Edit' : 'Submit'}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default PostUploadModal;
+export default SavePostModal;

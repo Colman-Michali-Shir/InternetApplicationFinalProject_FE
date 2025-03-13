@@ -28,6 +28,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../UserContext';
 import ScrollTop from './Scroll/ScrollTop';
 import PostUploadModal from './PostUploadModal';
+import SavePostModal from './Post/SavePostModal';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -53,10 +54,6 @@ const TopBar = () => {
     setIsDrawerOpen(newOpen);
   };
 
-  const togglePostUploadModal = (newOpen: boolean) => () => {
-    setIsPostUploadModalOpen(newOpen);
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('refreshToken');
@@ -64,6 +61,10 @@ const TopBar = () => {
     clearUserSession();
   };
 
+  const handleUpload = () => {
+    setIsDrawerOpen(false);
+    setIsPostUploadModalOpen(true);
+  };
   return (
     <>
       <AppBar
@@ -89,13 +90,18 @@ const TopBar = () => {
                 >
                   <Logout />
                 </IconButton>
-                <IconButton color="primary" aria-label="Home" component={RouterLink} to="/">
+                <IconButton
+                  color="primary"
+                  aria-label="Home"
+                  component={RouterLink}
+                  to="/"
+                >
                   <Home />
                 </IconButton>
                 <IconButton
                   color="primary"
                   aria-label="Upload"
-                  onClick={togglePostUploadModal(true)}
+                  onClick={() => setIsPostUploadModalOpen(true)}
                 >
                   <Upload />
                 </IconButton>
@@ -107,9 +113,9 @@ const TopBar = () => {
                 >
                   <Recommend />
                 </IconButton>
-                <PostUploadModal
+                <SavePostModal
                   open={isPostUploadModalOpen}
-                  handleClose={togglePostUploadModal(false)}
+                  handleClose={() => setIsPostUploadModalOpen(false)}
                 />
               </Box>
             </Box>
@@ -134,7 +140,12 @@ const TopBar = () => {
                 alignItems: 'center',
               }}
             >
-              <IconButton color="primary" aria-label="Profile" component={RouterLink} to="/profile">
+              <IconButton
+                color="primary"
+                aria-label="Profile"
+                component={RouterLink}
+                to="/profile"
+              >
                 {userContext?.profileImage ? (
                   <Avatar
                     src={userContext.profileImage}
@@ -173,10 +184,14 @@ const TopBar = () => {
                     </IconButton>
                   </Box>
 
-                  <MenuItem component={RouterLink} to="/" onClick={toggleDrawer(false)}>
+                  <MenuItem
+                    component={RouterLink}
+                    to="/"
+                    onClick={toggleDrawer(false)}
+                  >
                     Home
                   </MenuItem>
-                  <MenuItem onClick={toggleDrawer(false)}>Upload</MenuItem>
+                  <MenuItem onClick={handleUpload}>Upload</MenuItem>
                   <MenuItem
                     component={RouterLink}
                     to="/recommendation"
@@ -184,7 +199,11 @@ const TopBar = () => {
                   >
                     Recommendation
                   </MenuItem>
-                  <MenuItem onClick={handleLogout} component={RouterLink} to="/login">
+                  <MenuItem
+                    onClick={handleLogout}
+                    component={RouterLink}
+                    to="/login"
+                  >
                     Logout
                   </MenuItem>
                   <Divider sx={{ my: 3 }} />
