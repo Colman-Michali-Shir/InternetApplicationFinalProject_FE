@@ -5,9 +5,10 @@ import { ToastContainer } from 'react-toastify';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { UserProvider } from './UserContext';
+import { UserProvider } from './Context/UserContext';
 import App from './App';
 import theme from './theme';
+import { PostProvider } from './Context/PostContext';
 
 createRoot(document.getElementById('root')!).render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
@@ -16,11 +17,13 @@ createRoot(document.getElementById('root')!).render(
       <CssBaseline />
       <BrowserRouter>
         <UserProvider>
-          <ToastContainer position="bottom-left" theme="colored" />
-          <App />
+          <PostProvider>
+            <ToastContainer position='bottom-left' theme='colored' />
+            <App />
+          </PostProvider>
         </UserProvider>
       </BrowserRouter>
     </ThemeProvider>
     {/* </StrictMode> */}
-  </GoogleOAuthProvider>,
+  </GoogleOAuthProvider>
 );

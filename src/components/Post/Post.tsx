@@ -16,7 +16,7 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 import postsService, { IPost } from '../../services/postsService';
 import { useNavigate } from 'react-router-dom';
-import { useUserContext } from '../../UserContext';
+import { useUserContext } from '../../Context/UserContext';
 import { useState } from 'react';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';

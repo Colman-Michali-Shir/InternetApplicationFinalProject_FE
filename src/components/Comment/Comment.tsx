@@ -18,7 +18,7 @@ import { Edit, Delete, Save, Close } from '@mui/icons-material';
 import commentsService, { IComment } from '../../services/commentsService';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
-import { useUserContext } from '../../UserContext';
+import { useUserContext } from '../../Context/UserContext';
 import { TruncatedParagraph } from './TruncatedParagraph';
 
 const Comment = ({
@@ -85,34 +85,34 @@ const Comment = ({
 
   return (
     <>
-      <ListItem key={comment._id} alignItems="flex-start">
+      <ListItem key={comment._id} alignItems='flex-start'>
         <ListItemAvatar>
           <Avatar alt={comment.user.username} src={comment.user.profileImage} />
         </ListItemAvatar>
 
         {isEditing ? (
-          <Box display="flex" flexDirection="column" width="100%">
+          <Box display='flex' flexDirection='column' width='100%'>
             <TextField
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
               fullWidth
-              size="small"
+              size='small'
               multiline
             />
-            <Box display="flex" gap={1} mt={1}>
+            <Box display='flex' gap={1} mt={1}>
               <Button
                 onClick={handleSaveEdit}
                 startIcon={<Save />}
-                variant="contained"
-                size="small"
+                variant='contained'
+                size='small'
               >
                 Save
               </Button>
               <Button
                 onClick={handleCancelEdit}
                 startIcon={<Close />}
-                variant="outlined"
-                size="small"
+                variant='outlined'
+                size='small'
               >
                 Cancel
               </Button>
@@ -122,7 +122,7 @@ const Comment = ({
           <ListItemText
             primary={comment.user.username}
             secondary={
-              <Typography component="div" variant="body2" color="textSecondary">
+              <Typography component='div' variant='body2' color='textSecondary'>
                 <TruncatedParagraph>{comment.content}</TruncatedParagraph>
               </Typography>
             }
@@ -130,12 +130,12 @@ const Comment = ({
         )}
 
         {!isEditing && isOwner && (
-          <Box display="flex">
-            <IconButton size="small" onClick={handleEditClick}>
-              <Edit fontSize="small" />
+          <Box display='flex'>
+            <IconButton size='small' onClick={handleEditClick}>
+              <Edit fontSize='small' />
             </IconButton>
-            <IconButton size="small" onClick={handleDeleteClick}>
-              <Delete fontSize="small" color="error" />
+            <IconButton size='small' onClick={handleDeleteClick}>
+              <Delete fontSize='small' color='error' />
             </IconButton>
           </Box>
         )}
@@ -147,13 +147,13 @@ const Comment = ({
           Are you sure you want to delete this comment?
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} color="inherit">
+          <Button onClick={handleCloseDeleteDialog} color='inherit'>
             Cancel
           </Button>
           <Button
             onClick={handleConfirmDelete}
-            color="error"
-            variant="contained"
+            color='error'
+            variant='contained'
           >
             Delete
           </Button>

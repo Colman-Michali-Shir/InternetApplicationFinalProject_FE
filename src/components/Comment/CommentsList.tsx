@@ -4,7 +4,7 @@ import commentsService, { IComment } from '../../services/commentsService';
 import { HttpStatusCode } from 'axios';
 import { toast } from 'react-toastify';
 import Comment from './Comment';
-import { useUserContext } from '../../UserContext';
+import { useUserContext } from '../../Context/UserContext';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import React from 'react';
 import { useParams } from 'react-router-dom';
