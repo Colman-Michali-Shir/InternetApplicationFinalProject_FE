@@ -8,20 +8,23 @@ import { IPost } from '../../services/postsService';
 import postService from '../../services/postsService';
 import { useUserContext } from '../../UserContext';
 
-const PostsList = ({ getAll = false }: { getAll: boolean }) => {
+const PostsList = ({ shouldGetAll = false }: { shouldGetAll: boolean }) => {
   const { userContext } = useUserContext();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [lastPostId, setLastPostId] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState(false);
 
   const fetchPosts = async () => {
-    const userId = getAll ? undefined : userContext?._id;
+    const userId = shouldGetAll ? undefined : userContext?._id;
     try {
-      const response = (await postService.getPosts(userId, lastPostId)).response;
+      const response = (await postService.getPosts(userId, lastPostId))
+        .response;
       if (response.status === HttpStatusCode.Ok) {
         const newPosts = response.data.posts;
         setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
-        setLastPostId(newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null);
+        setLastPostId(
+          newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null
+        );
         setHasMore(newPosts.length > 0);
       } else {
         toast.error('Failed to load posts.');
@@ -47,12 +50,12 @@ const PostsList = ({ getAll = false }: { getAll: boolean }) => {
         next={fetchPosts}
         hasMore={hasMore}
         loader={
-          <Box display="flex" justifyContent="center" mt={2}>
+          <Box display='flex' justifyContent='center' mt={2}>
             <CircularProgress />
           </Box>
         }
         endMessage={
-          <Typography align="center" mt={2} color="textSecondary">
+          <Typography align='center' mt={2} color='textSecondary'>
             No more posts to show 🎉
           </Typography>
         }

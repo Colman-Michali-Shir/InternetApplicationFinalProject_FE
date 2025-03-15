@@ -7,7 +7,7 @@ const Profile = () => {
     <Box display='flex' flexDirection='column' gap='4'>
       <ProfileData />
       <Divider sx={{ my: 3 }} />
-      <PostsList getAll={false} />
+      <PostsList shouldGetAll={false} />
     </Box>
   );
 };
