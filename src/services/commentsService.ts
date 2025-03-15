@@ -7,10 +7,12 @@ export interface IComment {
   content: string;
 }
 
-const getCommentsByPostId = async (postId: string, currentPage: number) => {
+const getCommentsByPostId = async (postId: string, lastCommentId?: string) => {
   const abortController = new AbortController();
-  const response = await apiClient.get('/comments', {
-    params: { postId, currentPage },
+  const params = new URLSearchParams();
+  params.append('postId', postId);
+  if (lastCommentId) params.append('lastCommentId', lastCommentId);
+  const response = await apiClient.get(`/comments?${params.toString()}`, {
     signal: abortController.signal,
   });
   return { response, abort: () => abortController.abort() };
@@ -39,7 +41,7 @@ const updateComment = async (commentId: string, updateComment: string) => {
     { content: updateComment },
     {
       signal: abortController.signal,
-    },
+    }
   );
   return { response, abort: () => abortController.abort() };
 };

@@ -5,7 +5,6 @@ import {
   CardMedia,
   Box,
   Avatar,
-  Rating,
   IconButton,
   Dialog,
   DialogContent,
@@ -14,18 +13,17 @@ import {
   Button,
   styled,
 } from '@mui/material';
-import { pink } from '@mui/material/colors';
-import { Delete, Edit, Favorite, ModeComment } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import postsService, { IPost } from '../../services/postsService';
-import PostExtraDetails from '../Comment/CommentsList';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../../UserContext';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
 import moment from 'moment';
 import { StyledTypography } from './StyledTypography';
+import PostBottomBar from './PostBottomBar';
 
 const User = ({
   post,
@@ -84,16 +82,16 @@ const User = ({
           src={user.profileImage}
           sx={{ width: 24, height: 24 }}
         />
-        <Typography variant="subtitle1">{user.username}</Typography>
+        <Typography variant='subtitle1'>{user.username}</Typography>
       </Box>
 
       {isOwner && (
         <Box sx={{ position: 'absolute', right: 8 }}>
-          <IconButton size="small" onClick={onEditClick}>
+          <IconButton size='small' onClick={onEditClick}>
             <Edit />
           </IconButton>
-          <IconButton size="small" onClick={handleDeleteConfirmation}>
-            <Delete color="error" />
+          <IconButton size='small' onClick={handleDeleteConfirmation}>
+            <Delete color='error' />
           </IconButton>
         </Box>
       )}
@@ -111,97 +109,14 @@ const User = ({
           <Typography>Are you sure you want to delete this post?</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelDelete} color="inherit">
+          <Button onClick={handleCancelDelete} color='inherit'>
             Cancel
           </Button>
-          <Button onClick={handleDeletePost} color="error">
+          <Button onClick={handleDeletePost} color='error'>
             Delete
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
-  );
-};
-
-const BottomBar = ({
-  likesCount,
-  commentsCount,
-  rating,
-  shouldExtraDetails,
-}: {
-  likesCount: number;
-  commentsCount: number;
-  rating: number;
-  shouldExtraDetails: boolean;
-}) => {
-  const [commentsCountState, setCommentsCountState] =
-    useState<number>(commentsCount);
-
-  const updateCommentsCount = useCallback((newCommentsCount: number) => {
-    setCommentsCountState(newCommentsCount);
-  }, []);
-
-  return (
-    <Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 2,
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 0.7,
-              alignItems: 'center',
-            }}
-          >
-            <Favorite sx={{ color: pink[500] }} />
-            <Typography variant="subtitle1">{likesCount}</Typography>
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 0.7,
-              alignItems: 'center',
-            }}
-          >
-            <ModeComment />
-            <Typography variant="subtitle1">{commentsCountState}</Typography>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 0.7,
-            alignItems: 'center',
-          }}
-        >
-          <Rating name="read-only-rating" value={rating} readOnly />
-        </Box>
-      </Box>
-
-      {shouldExtraDetails && (
-        <PostExtraDetails
-          updateCommentsCount={updateCommentsCount}
-          commentsCount={commentsCountState}
-        />
-      )}
     </Box>
   );
 };
@@ -219,10 +134,7 @@ const Post = ({
     padding: 0,
     height: '100%',
     backgroundColor: theme.palette.background.paper,
-    '&:hover': {
-      backgroundColor: 'transparent',
-      cursor: 'pointer',
-    },
+
     '&:focus-visible': {
       outline: '3px solid',
       outlineColor: 'hsla(210, 98%, 48%, 0.5)',
@@ -245,8 +157,17 @@ const Post = ({
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
   const [postState, setPostState] = useState<IPost>(post);
 
-  const { postedBy, image, title, content, likesCount, commentsCount, rating } =
-    postState;
+  const {
+    postedBy,
+    image,
+    title,
+    content,
+    likesCount,
+    commentsCount,
+    rating,
+    liked,
+    _id,
+  } = postState;
   const isOwner = postedBy._id === userContext?._id;
 
   const handleEditClick = () => {
@@ -258,11 +179,7 @@ const Post = ({
   };
 
   return (
-    <StyledCard
-      variant="outlined"
-      tabIndex={0}
-      onClick={() => !shouldExtraDetails && navigate(`/post/${postState._id}`)}
-    >
+    <StyledCard variant='outlined' tabIndex={0}>
       <User
         post={postState}
         user={postedBy}
@@ -273,34 +190,43 @@ const Post = ({
         setPostState={setPostState}
       />
       <CardMedia
-        component="img"
+        component='img'
         image={image}
         sx={{
           aspectRatio: '16 / 9',
           borderBottom: '1px solid',
           borderColor: 'divider',
+          '&:hover': {
+            backgroundColor: 'transparent',
+            cursor: 'pointer',
+          },
         }}
+        onClick={() =>
+          !shouldExtraDetails && navigate(`/post/${postState._id}`)
+        }
       />
       <StyledCardContent>
         <Typography
-          variant="caption"
-          color="text.secondary"
+          variant='caption'
+          color='text.secondary'
           sx={{ marginLeft: 'auto' }}
         >
           {moment(postState.createdAt).fromNow()}
         </Typography>
-        <Typography gutterBottom variant="h6" component="div">
+        <Typography gutterBottom variant='h6' component='div'>
           {title}
         </Typography>
-        <StyledTypography variant="body2" color="text.secondary" gutterBottom>
+        <StyledTypography variant='body2' color='text.secondary' gutterBottom>
           {content}
         </StyledTypography>
       </StyledCardContent>
-      <BottomBar
+      <PostBottomBar
         likesCount={likesCount}
         commentsCount={commentsCount}
         rating={rating}
+        likedByCurrentUser={liked}
         shouldExtraDetails={shouldExtraDetails}
+        postId={_id}
       />
     </StyledCard>
   );
