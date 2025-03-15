@@ -165,7 +165,7 @@ const Post = ({
     likesCount,
     commentsCount,
     rating,
-    liked,
+    likedByCurrentUser,
     _id,
   } = postState;
   const isOwner = postedBy._id === userContext?._id;
@@ -224,7 +224,7 @@ const Post = ({
         likesCount={likesCount}
         commentsCount={commentsCount}
         rating={rating}
-        likedByCurrentUser={liked}
+        likedByCurrentUser={likedByCurrentUser}
         shouldExtraDetails={shouldExtraDetails}
         postId={_id}
       />
