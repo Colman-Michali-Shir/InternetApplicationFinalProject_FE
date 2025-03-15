@@ -13,8 +13,13 @@ const PostsList = ({ getAll = false }: { getAll: boolean }) => {
   const [posts, setPosts] = useState<IPost[]>([]);
   const [lastPostId, setLastPostId] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchPosts = async () => {
+    if (loading) return;
+
+    setLoading(true);
+
     const userId = getAll ? undefined : userContext?._id;
     try {
       const { response } = await postService.getPosts(userId, lastPostId);
@@ -30,6 +35,8 @@ const PostsList = ({ getAll = false }: { getAll: boolean }) => {
       }
     } catch {
       toast.error('Error fetching posts.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,9 +56,11 @@ const PostsList = ({ getAll = false }: { getAll: boolean }) => {
         next={fetchPosts}
         hasMore={hasMore}
         loader={
-          <Box display='flex' justifyContent='center' mt={2}>
-            <CircularProgress />
-          </Box>
+          loading && (
+            <Box display='flex' justifyContent='center' mt={2}>
+              <CircularProgress />
+            </Box>
+          )
         }
         style={{ overflow: 'visible' }}
       >

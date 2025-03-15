@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, Dispatch, SetStateAction } from 'react';
 import { Box, IconButton, Typography, Rating } from '@mui/material';
 import { ModeComment, Favorite, FavoriteBorder } from '@mui/icons-material';
 import { pink } from '@mui/material/colors';
@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
 import CommentsList from '../Comment/CommentsList';
 import likesService from '../../services/likesService';
+import { IPost } from '../../services/postsService';
 
 const PostBottomBar = ({
   likesCount,
@@ -14,6 +15,7 @@ const PostBottomBar = ({
   likedByCurrentUser = false,
   shouldExtraDetails,
   postId,
+  setPostState,
 }: {
   likesCount: number;
   commentsCount: number;
@@ -21,6 +23,7 @@ const PostBottomBar = ({
   likedByCurrentUser: boolean;
   shouldExtraDetails: boolean;
   postId: string;
+  setPostState: Dispatch<SetStateAction<IPost>>;
 }) => {
   const [commentsCountState, setCommentsCountState] =
     useState<number>(commentsCount);
@@ -39,6 +42,11 @@ const PostBottomBar = ({
         if (response.status === HttpStatusCode.Created) {
           setLikesCountState(likesCountState + 1);
           setLikedByCurrentUserState(true);
+          setPostState((prevState) => ({
+            ...prevState,
+            likesCount: likesCountState + 1,
+            likedByCurrentUser: true,
+          }));
         }
       } catch {
         toast.error('Error liking post');
@@ -53,6 +61,11 @@ const PostBottomBar = ({
         if (response.status === HttpStatusCode.Ok) {
           setLikesCountState(likesCountState - 1);
           setLikedByCurrentUserState(false);
+          setPostState((prevState) => ({
+            ...prevState,
+            likesCount: likesCountState - 1,
+            likedByCurrentUser: false,
+          }));
         }
       } catch {
         toast.error('Error unliking post');

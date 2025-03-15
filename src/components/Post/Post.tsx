@@ -227,6 +227,7 @@ const Post = ({
         likedByCurrentUser={likedByCurrentUser}
         shouldExtraDetails={shouldExtraDetails}
         postId={_id}
+        setPostState={setPostState}
       />
     </StyledCard>
   );
