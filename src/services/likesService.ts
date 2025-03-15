@@ -7,7 +7,6 @@ export interface ILike {
 }
 
 const addLike = async (postId: string) => {
-  console.log('postId', postId);
   const abortController = new AbortController();
   const response = await apiClient.post(
     '/likes',
@@ -19,6 +18,15 @@ const addLike = async (postId: string) => {
   return { response, abort: () => abortController.abort() };
 };
 
+const removeLike = async (postId: string) => {
+  const abortController = new AbortController();
+  const response = await apiClient.delete(`/likes/${postId}`, {
+    signal: abortController.signal,
+  });
+  return { response, abort: () => abortController.abort() };
+};
+
 export default {
   addLike,
+  removeLike,
 };

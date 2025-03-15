@@ -1,12 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  CircularProgress,
-  List,
-  TextField,
-  Button,
-  Box,
-  Typography,
-} from '@mui/material';
+import { CircularProgress, List, TextField, Button, Box } from '@mui/material';
 import commentsService, { IComment } from '../../services/commentsService';
 import { HttpStatusCode } from 'axios';
 import { toast } from 'react-toastify';
@@ -27,7 +20,9 @@ const CommentsList = React.memo(
     const [comments, setComments] = useState<IComment[]>([]);
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState<string>('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [lastCommentId, setLastCommentId] = useState<string | undefined>(
+      undefined
+    );
     const [hasMore, setHasMore] = useState(true);
     const { userContext } = useUserContext();
     const limit = 5;
@@ -42,13 +37,17 @@ const CommentsList = React.memo(
         try {
           const { response } = await commentsService.getCommentsByPostId(
             postId,
-            currentPage
+            lastCommentId
           );
           if (response.status === HttpStatusCode.Ok) {
             const newComments = response.data;
-
             setComments((prevComments) => [...prevComments, ...newComments]);
             setHasMore(newComments.length === limit);
+            setLastCommentId(
+              newComments.length > 0
+                ? newComments[newComments.length - 1]._id
+                : null
+            );
           }
         } catch {
           toast.error('Error fetching comments');
@@ -60,7 +59,12 @@ const CommentsList = React.memo(
 
     useEffect(() => {
       fetchCommentsByPostId();
-    }, [currentPage]);
+      return () => {
+        setComments([]);
+        setLastCommentId(undefined);
+        setHasMore(false);
+      };
+    }, []);
 
     const onDeleteComment = (commentId: string) => {
       updateCommentsCount(commentsCount - 1);
@@ -110,7 +114,7 @@ const CommentsList = React.memo(
       <Box>
         <InfiniteScroll
           dataLength={comments.length}
-          next={() => setCurrentPage((prev) => prev + 1)}
+          next={fetchCommentsByPostId}
           hasMore={hasMore}
           loader={
             loading && (
@@ -118,16 +122,6 @@ const CommentsList = React.memo(
                 <CircularProgress />
               </Box>
             )
-          }
-          endMessage={
-            <Typography
-              component='div'
-              align='center'
-              mt={2}
-              color='textSecondary'
-            >
-              No more comments to show 🎉
-            </Typography>
           }
           style={{ overflow: 'visible' }}
           scrollableTarget='comments-list'

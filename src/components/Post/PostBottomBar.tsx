@@ -2,10 +2,10 @@ import { useState, useCallback } from 'react';
 import { Box, IconButton, Typography, Rating } from '@mui/material';
 import { ModeComment, Favorite, FavoriteBorder } from '@mui/icons-material';
 import { pink } from '@mui/material/colors';
-import CommentsList from '../Comment/CommentsList';
-import likesService from '../../services/likesService';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
+import CommentsList from '../Comment/CommentsList';
+import likesService from '../../services/likesService';
 
 const PostBottomBar = ({
   likesCount,
@@ -25,6 +25,8 @@ const PostBottomBar = ({
   const [commentsCountState, setCommentsCountState] =
     useState<number>(commentsCount);
   const [likesCountState, setLikesCountState] = useState<number>(likesCount);
+  const [likedByCurrentUserState, setLikedByCurrentUserState] =
+    useState<boolean>(likedByCurrentUser);
 
   const updateCommentsCount = useCallback((newCommentsCount: number) => {
     setCommentsCountState(newCommentsCount);
@@ -34,13 +36,26 @@ const PostBottomBar = ({
     if (postId) {
       try {
         const { response } = await likesService.addLike(postId);
-        if (response.status === HttpStatusCode.Ok) {
-          console.log('liked');
-          setLikesCountState(likesCount + 1);
-          likedByCurrentUser = true;
+        if (response.status === HttpStatusCode.Created) {
+          setLikesCountState(likesCountState + 1);
+          setLikedByCurrentUserState(true);
         }
       } catch {
         toast.error('Error liking post');
+      }
+    }
+  };
+
+  const handleRemoveLike = async () => {
+    if (postId) {
+      try {
+        const { response } = await likesService.removeLike(postId);
+        if (response.status === HttpStatusCode.Ok) {
+          setLikesCountState(likesCountState - 1);
+          setLikedByCurrentUserState(false);
+        }
+      } catch {
+        toast.error('Error unliking post');
       }
     }
   };
@@ -73,8 +88,8 @@ const PostBottomBar = ({
               alignItems: 'center',
             }}
           >
-            {likedByCurrentUser ? (
-              <IconButton>
+            {likedByCurrentUserState ? (
+              <IconButton onClick={handleRemoveLike}>
                 <Favorite sx={{ color: pink[500] }} />
               </IconButton>
             ) : (

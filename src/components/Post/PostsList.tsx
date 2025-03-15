@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Grid2, Typography, CircularProgress } from '@mui/material';
+import { Box, Grid2, CircularProgress } from '@mui/material';
 import { HttpStatusCode } from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { toast } from 'react-toastify';
@@ -17,11 +17,13 @@ const PostsList = ({ getAll = false }: { getAll: boolean }) => {
   const fetchPosts = async () => {
     const userId = getAll ? undefined : userContext?._id;
     try {
-      const response = (await postService.getPosts(userId, lastPostId)).response;
+      const { response } = await postService.getPosts(userId, lastPostId);
       if (response.status === HttpStatusCode.Ok) {
         const newPosts = response.data.posts;
-        setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
-        setLastPostId(newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null);
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+        setLastPostId(
+          newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null
+        );
         setHasMore(newPosts.length > 0);
       } else {
         toast.error('Failed to load posts.');
@@ -47,14 +49,9 @@ const PostsList = ({ getAll = false }: { getAll: boolean }) => {
         next={fetchPosts}
         hasMore={hasMore}
         loader={
-          <Box display="flex" justifyContent="center" mt={2}>
+          <Box display='flex' justifyContent='center' mt={2}>
             <CircularProgress />
           </Box>
-        }
-        endMessage={
-          <Typography align="center" mt={2} color="textSecondary">
-            No more posts to show 🎉
-          </Typography>
         }
         style={{ overflow: 'visible' }}
       >
