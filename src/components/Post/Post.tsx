@@ -17,7 +17,7 @@ import { Delete, Edit } from '@mui/icons-material';
 import postsService, { IPost } from '../../services/postsService';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../../Context/UserContext';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
@@ -25,6 +25,7 @@ import moment from 'moment';
 import { StyledTypography } from './StyledTypography';
 import PostBottomBar from './PostBottomBar';
 import likesService from '../../services/likesService';
+import CommentsList from '../Comment/CommentsList';
 
 const User = ({
   post,
@@ -157,6 +158,13 @@ const Post = ({
   const { userContext } = useUserContext();
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
   const [postState, setPostState] = useState<IPost>(post);
+  const [likesCountState, setLikesCountState] = useState(post.likesCount);
+  const [likedByCurrentUserState, setLikedByCurrentUserState] = useState(
+    post.likedByCurrentUser
+  );
+  const [commentsCountState, setCommentsCountState] = useState(
+    post.commentsCount
+  );
 
   const {
     postedBy,
@@ -171,6 +179,14 @@ const Post = ({
   } = postState;
   const isOwner = postedBy._id === userContext?._id;
 
+  const updateCommentsCount = useCallback((newCommentsCount: number) => {
+    // setPostState((prevState) => ({
+    //   ...prevState,
+    //   commentsCount: newCommentsCount,
+    // }));
+    setCommentsCountState(newCommentsCount);
+  }, []);
+
   const handleEditClick = () => {
     setIsPostUploadModalOpen(true);
   };
@@ -184,11 +200,13 @@ const Post = ({
       try {
         const { response } = await likesService.addLike(_id);
         if (response.status === HttpStatusCode.Created) {
-          setPostState((prevState) => ({
-            ...prevState,
-            likesCount: prevState.likesCount + 1,
-            likedByCurrentUser: true,
-          }));
+          // setPostState((prevState) => ({
+          //   ...prevState,
+          //   likesCount: prevState.likesCount + 1,
+          //   likedByCurrentUser: true,
+          // }));
+          setLikesCountState((prevCount) => prevCount + 1);
+          setLikedByCurrentUserState(true);
         }
       } catch {
         toast.error('Error liking post');
@@ -201,11 +219,13 @@ const Post = ({
       try {
         const { response } = await likesService.removeLike(_id);
         if (response.status === HttpStatusCode.Ok) {
-          setPostState((prevState) => ({
-            ...prevState,
-            likesCount: prevState.likesCount - 1,
-            likedByCurrentUser: false,
-          }));
+          // setPostState((prevState) => ({
+          //   ...prevState,
+          //   likesCount: prevState.likesCount - 1,
+          //   likedByCurrentUser: false,
+          // }));
+          setLikesCountState((prevCount) => prevCount - 1);
+          setLikedByCurrentUserState(false);
         }
       } catch {
         toast.error('Error unliking post');
@@ -256,14 +276,20 @@ const Post = ({
         </StyledTypography>
       </StyledCardContent>
       <PostBottomBar
-        likesCount={likesCount}
-        commentsCount={commentsCount}
+        likesCount={likesCountState}
+        commentsCount={commentsCountState}
         rating={rating}
-        likedByCurrentUser={likedByCurrentUser}
+        likedByCurrentUser={likedByCurrentUserState}
         shouldExtraDetails={shouldExtraDetails}
         handleLike={handleLike}
         handleRemoveLike={handleRemoveLike}
       />
+      {shouldExtraDetails && (
+        <CommentsList
+          updateCommentsCount={updateCommentsCount}
+          commentsCount={commentsCountState}
+        />
+      )}
     </StyledCard>
   );
 };
