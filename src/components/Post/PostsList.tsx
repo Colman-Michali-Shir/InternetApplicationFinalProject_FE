@@ -8,7 +8,7 @@ import { IPost } from '../../services/postsService';
 import postService from '../../services/postsService';
 import { useUserContext } from '../../Context/UserContext';
 
-const PostsList = ({ getAll = false }: { getAll: boolean }) => {
+const PostsList = ({ shouldGetAll = false }: { shouldGetAll: boolean }) => {
   const { userContext } = useUserContext();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [lastPostId, setLastPostId] = useState<string | undefined>(undefined);
@@ -20,7 +20,7 @@ const PostsList = ({ getAll = false }: { getAll: boolean }) => {
 
     setLoading(true);
 
-    const userId = getAll ? undefined : userContext?._id;
+    const userId = shouldGetAll ? undefined : userContext?._id;
     try {
       const { response } = await postService.getPosts(userId, lastPostId);
       if (response.status === HttpStatusCode.Ok) {
