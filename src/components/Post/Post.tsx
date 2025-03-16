@@ -84,16 +84,16 @@ const User = ({
           src={user.profileImage}
           sx={{ width: 24, height: 24 }}
         />
-        <Typography variant="subtitle1">{user.username}</Typography>
+        <Typography variant='subtitle1'>{user.username}</Typography>
       </Box>
 
       {isOwner && (
         <Box sx={{ position: 'absolute', right: 8 }}>
-          <IconButton size="small" onClick={onEditClick}>
+          <IconButton size='small' onClick={onEditClick}>
             <Edit />
           </IconButton>
-          <IconButton size="small" onClick={handleDeleteConfirmation}>
-            <Delete color="error" />
+          <IconButton size='small' onClick={handleDeleteConfirmation}>
+            <Delete color='error' />
           </IconButton>
         </Box>
       )}
@@ -111,10 +111,10 @@ const User = ({
           <Typography>Are you sure you want to delete this post?</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelDelete} color="inherit">
+          <Button onClick={handleCancelDelete} color='inherit'>
             Cancel
           </Button>
-          <Button onClick={handleDeletePost} color="error">
+          <Button onClick={handleDeletePost} color='error'>
             Delete
           </Button>
         </DialogActions>
@@ -170,7 +170,7 @@ const BottomBar = ({
             }}
           >
             <Favorite sx={{ color: pink[500] }} />
-            <Typography variant="subtitle1">{likesCount}</Typography>
+            <Typography variant='subtitle1'>{likesCount}</Typography>
           </Box>
           <Box
             sx={{
@@ -181,7 +181,7 @@ const BottomBar = ({
             }}
           >
             <ModeComment />
-            <Typography variant="subtitle1">{commentsCountState}</Typography>
+            <Typography variant='subtitle1'>{commentsCountState}</Typography>
           </Box>
         </Box>
         <Box
@@ -192,7 +192,7 @@ const BottomBar = ({
             alignItems: 'center',
           }}
         >
-          <Rating name="read-only-rating" value={rating} readOnly />
+          <Rating name='read-only-rating' value={rating} readOnly />
         </Box>
       </Box>
 
@@ -259,7 +259,7 @@ const Post = ({
 
   return (
     <StyledCard
-      variant="outlined"
+      variant='outlined'
       tabIndex={0}
       onClick={() => !shouldExtraDetails && navigate(`/post/${postState._id}`)}
     >
@@ -273,7 +273,7 @@ const Post = ({
         setPostState={setPostState}
       />
       <CardMedia
-        component="img"
+        component='img'
         image={image}
         sx={{
           aspectRatio: '16 / 9',
@@ -283,16 +283,16 @@ const Post = ({
       />
       <StyledCardContent>
         <Typography
-          variant="caption"
-          color="text.secondary"
+          variant='caption'
+          color='text.secondary'
           sx={{ marginLeft: 'auto' }}
         >
           {moment(postState.createdAt).fromNow()}
         </Typography>
-        <Typography gutterBottom variant="h6" component="div">
+        <Typography gutterBottom variant='h6' component='div'>
           {title}
         </Typography>
-        <StyledTypography variant="body2" color="text.secondary" gutterBottom>
+        <StyledTypography variant='body2' color='text.secondary' gutterBottom>
           {content}
         </StyledTypography>
       </StyledCardContent>
