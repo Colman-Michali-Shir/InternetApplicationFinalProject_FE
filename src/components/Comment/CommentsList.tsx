@@ -25,7 +25,6 @@ const CommentsList = React.memo(
     );
     const [hasMore, setHasMore] = useState(true);
     const { userContext } = useUserContext();
-    const limit = 5;
     const { id: postId } = useParams();
 
     const fetchCommentsByPostId = async () => {
@@ -42,7 +41,7 @@ const CommentsList = React.memo(
           if (response.status === HttpStatusCode.Ok) {
             const newComments = response.data;
             setComments((prevComments) => [...prevComments, ...newComments]);
-            setHasMore(newComments.length === limit);
+            setHasMore(newComments.length > 0);
             setLastCommentId(
               newComments.length > 0
                 ? newComments[newComments.length - 1]._id
