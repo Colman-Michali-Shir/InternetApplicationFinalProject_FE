@@ -22,12 +22,12 @@ const PostBottomBar = React.memo(
     handleLike: () => void;
     handleRemoveLike: () => void;
   }) => {
-    // const [commentsCountState, setCommentsCountState] =
-    //   useState<number>(commentsCount);
+    const [commentsCountState, setCommentsCountState] =
+      useState<number>(commentsCount);
 
-    // const updateCommentsCount = useCallback((newCommentsCount: number) => {
-    //   setCommentsCountState(newCommentsCount);
-    // }, []);
+    const updateCommentsCount = useCallback((newCommentsCount: number) => {
+      setCommentsCountState(newCommentsCount);
+    }, []);
 
     return (
       <Box>
@@ -77,7 +77,7 @@ const PostBottomBar = React.memo(
               }}
             >
               <ModeComment />
-              <Typography variant='subtitle1'>{commentsCount}</Typography>
+              <Typography variant='subtitle1'>{commentsCountState}</Typography>
             </Box>
           </Box>
           <Box
@@ -92,12 +92,12 @@ const PostBottomBar = React.memo(
           </Box>
         </Box>
 
-        {/* {shouldExtraDetails && (
-        <CommentsList
-          updateCommentsCount={updateCommentsCount}
-          commentsCount={commentsCountState}
-        />
-      )} */}
+        {shouldExtraDetails && (
+          <CommentsList
+            updateCommentsCount={updateCommentsCount}
+            commentsCount={commentsCountState}
+          />
+        )}
       </Box>
     );
   }
