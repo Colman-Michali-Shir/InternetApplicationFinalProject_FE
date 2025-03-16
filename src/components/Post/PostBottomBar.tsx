@@ -1,12 +1,8 @@
-import { useState, useCallback, Dispatch, SetStateAction } from 'react';
+import { useState, useCallback } from 'react';
 import { Box, IconButton, Typography, Rating } from '@mui/material';
 import { ModeComment, Favorite, FavoriteBorder } from '@mui/icons-material';
 import { pink } from '@mui/material/colors';
-import { toast } from 'react-toastify';
-import { HttpStatusCode } from 'axios';
 import CommentsList from '../Comment/CommentsList';
-import likesService from '../../services/likesService';
-import { IPost } from '../../services/postsService';
 
 const PostBottomBar = ({
   likesCount,
@@ -14,64 +10,23 @@ const PostBottomBar = ({
   rating,
   likedByCurrentUser = false,
   shouldExtraDetails,
-  postId,
-  setPostState,
+  handleLike,
+  handleRemoveLike,
 }: {
   likesCount: number;
   commentsCount: number;
   rating: number;
   likedByCurrentUser: boolean;
   shouldExtraDetails: boolean;
-  postId: string;
-  setPostState: Dispatch<SetStateAction<IPost>>;
+  handleLike: () => void;
+  handleRemoveLike: () => void;
 }) => {
   const [commentsCountState, setCommentsCountState] =
     useState<number>(commentsCount);
-  const [likesCountState, setLikesCountState] = useState<number>(likesCount);
-  const [likedByCurrentUserState, setLikedByCurrentUserState] =
-    useState<boolean>(likedByCurrentUser);
 
   const updateCommentsCount = useCallback((newCommentsCount: number) => {
     setCommentsCountState(newCommentsCount);
   }, []);
-
-  const handleLike = async () => {
-    if (postId) {
-      try {
-        const { response } = await likesService.addLike(postId);
-        if (response.status === HttpStatusCode.Created) {
-          setLikesCountState(likesCountState + 1);
-          setLikedByCurrentUserState(true);
-          setPostState((prevState) => ({
-            ...prevState,
-            likesCount: likesCountState + 1,
-            likedByCurrentUser: true,
-          }));
-        }
-      } catch {
-        toast.error('Error liking post');
-      }
-    }
-  };
-
-  const handleRemoveLike = async () => {
-    if (postId) {
-      try {
-        const { response } = await likesService.removeLike(postId);
-        if (response.status === HttpStatusCode.Ok) {
-          setLikesCountState(likesCountState - 1);
-          setLikedByCurrentUserState(false);
-          setPostState((prevState) => ({
-            ...prevState,
-            likesCount: likesCountState - 1,
-            likedByCurrentUser: false,
-          }));
-        }
-      } catch {
-        toast.error('Error unliking post');
-      }
-    }
-  };
 
   return (
     <Box>
@@ -101,7 +56,7 @@ const PostBottomBar = ({
               alignItems: 'center',
             }}
           >
-            {likedByCurrentUserState ? (
+            {likedByCurrentUser ? (
               <IconButton onClick={handleRemoveLike}>
                 <Favorite sx={{ color: pink[500] }} />
               </IconButton>
@@ -110,7 +65,7 @@ const PostBottomBar = ({
                 <FavoriteBorder />
               </IconButton>
             )}
-            <Typography variant='subtitle1'>{likesCountState}</Typography>
+            <Typography variant='subtitle1'>{likesCount}</Typography>
           </Box>
           <Box
             sx={{

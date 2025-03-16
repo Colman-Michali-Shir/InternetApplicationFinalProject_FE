@@ -24,6 +24,7 @@ import { HttpStatusCode } from 'axios';
 import moment from 'moment';
 import { StyledTypography } from './StyledTypography';
 import PostBottomBar from './PostBottomBar';
+import likesService from '../../services/likesService';
 
 const User = ({
   post,
@@ -178,6 +179,40 @@ const Post = ({
     setIsPostUploadModalOpen(false);
   };
 
+  const handleLike = async () => {
+    if (_id) {
+      try {
+        const { response } = await likesService.addLike(_id);
+        if (response.status === HttpStatusCode.Created) {
+          setPostState((prevState) => ({
+            ...prevState,
+            likesCount: prevState.likesCount + 1,
+            likedByCurrentUser: true,
+          }));
+        }
+      } catch {
+        toast.error('Error liking post');
+      }
+    }
+  };
+
+  const handleRemoveLike = async () => {
+    if (_id) {
+      try {
+        const { response } = await likesService.removeLike(_id);
+        if (response.status === HttpStatusCode.Ok) {
+          setPostState((prevState) => ({
+            ...prevState,
+            likesCount: prevState.likesCount - 1,
+            likedByCurrentUser: false,
+          }));
+        }
+      } catch {
+        toast.error('Error unliking post');
+      }
+    }
+  };
+
   return (
     <StyledCard variant='outlined' tabIndex={0}>
       <User
@@ -226,8 +261,8 @@ const Post = ({
         rating={rating}
         likedByCurrentUser={likedByCurrentUser}
         shouldExtraDetails={shouldExtraDetails}
-        postId={_id}
-        setPostState={setPostState}
+        handleLike={handleLike}
+        handleRemoveLike={handleRemoveLike}
       />
     </StyledCard>
   );
