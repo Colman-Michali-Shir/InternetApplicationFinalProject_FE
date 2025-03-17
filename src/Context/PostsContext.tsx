@@ -1,7 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 import { IPost } from '../services/postsService';
 
-// Define the shape of the context
 interface PostContextType {
   postsContext: IPost[];
   addPost: (newPost: IPost) => void;
@@ -10,16 +9,14 @@ interface PostContextType {
   setEndOfList: (flage: boolean) => void;
 }
 
-// Create context with default values
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
-// Provider Component
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const [posts, setPosts] = useState<IPost[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(false);
 
   const addPost = (newPost: IPost) => {
-    if (!hasMore) setPosts((prevPosts) => [...prevPosts, newPost]); // Add the new post at the top
+    if (!hasMore) setPosts((prevPosts) => [...prevPosts, newPost]);
   };
 
   const addMultiplePosts = (newPosts: IPost[]) => {
@@ -50,7 +47,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Custom hook to use the PostContext
 export const usePostContext = () => {
   const context = useContext(PostContext);
   if (!context) {
