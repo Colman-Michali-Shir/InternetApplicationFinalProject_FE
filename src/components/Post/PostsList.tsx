@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import Post from '../../components/Post/Post';
 import { IPost } from '../../services/postsService';
 import postService from '../../services/postsService';
-import { useUserContext } from '../../UserContext';
+import { useUserContext } from '../../Context/UserContext';
 
 const PostsList = ({
   shouldGetAll = false,

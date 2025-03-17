@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -5,7 +6,6 @@ import {
   CardMedia,
   Box,
   Avatar,
-  Rating,
   IconButton,
   Dialog,
   DialogContent,
@@ -14,18 +14,17 @@ import {
   Button,
   styled,
 } from '@mui/material';
-import { pink } from '@mui/material/colors';
-import { Delete, Edit, Favorite, ModeComment } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import postsService, { IPost } from '../../services/postsService';
-import PostExtraDetails from '../Comment/CommentsList';
 import { useNavigate } from 'react-router-dom';
-import { useUserContext } from '../../UserContext';
-import { useCallback, useState } from 'react';
+import { useUserContext } from '../../Context/UserContext';
 import SavePostModal from './SavePostModal';
 import { toast } from 'react-toastify';
 import { HttpStatusCode } from 'axios';
 import moment from 'moment';
 import { StyledTypography } from './StyledTypography';
+import PostBottomBar from './PostBottomBar';
+import likesService from '../../services/likesService';
 
 const User = ({
   post,
@@ -123,89 +122,6 @@ const User = ({
   );
 };
 
-const BottomBar = ({
-  likesCount,
-  commentsCount,
-  rating,
-  shouldExtraDetails,
-}: {
-  likesCount: number;
-  commentsCount: number;
-  rating: number;
-  shouldExtraDetails: boolean;
-}) => {
-  const [commentsCountState, setCommentsCountState] =
-    useState<number>(commentsCount);
-
-  const updateCommentsCount = useCallback((newCommentsCount: number) => {
-    setCommentsCountState(newCommentsCount);
-  }, []);
-
-  return (
-    <Box>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 2,
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 0.7,
-              alignItems: 'center',
-            }}
-          >
-            <Favorite sx={{ color: pink[500] }} />
-            <Typography variant='subtitle1'>{likesCount}</Typography>
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 0.7,
-              alignItems: 'center',
-            }}
-          >
-            <ModeComment />
-            <Typography variant='subtitle1'>{commentsCountState}</Typography>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 0.7,
-            alignItems: 'center',
-          }}
-        >
-          <Rating name='read-only-rating' value={rating} readOnly />
-        </Box>
-      </Box>
-
-      {shouldExtraDetails && (
-        <PostExtraDetails
-          updateCommentsCount={updateCommentsCount}
-          commentsCount={commentsCountState}
-        />
-      )}
-    </Box>
-  );
-};
-
 const Post = ({
   post,
   shouldExtraDetails = false,
@@ -219,10 +135,7 @@ const Post = ({
     padding: 0,
     height: '100%',
     backgroundColor: theme.palette.background.paper,
-    '&:hover': {
-      backgroundColor: 'transparent',
-      cursor: 'pointer',
-    },
+
     '&:focus-visible': {
       outline: '3px solid',
       outlineColor: 'hsla(210, 98%, 48%, 0.5)',
@@ -244,8 +157,12 @@ const Post = ({
   const { userContext } = useUserContext();
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
   const [postState, setPostState] = useState<IPost>(post);
+  const [likesCountState, setLikesCountState] = useState(post.likesCount);
+  const [likedByCurrentUserState, setLikedByCurrentUserState] = useState(
+    post.likedByCurrentUser
+  );
 
-  const { postedBy, image, title, content, likesCount, commentsCount, rating } =
+  const { postedBy, image, title, content, commentsCount, rating, _id } =
     postState;
   const isOwner = postedBy._id === userContext?._id;
 
@@ -257,12 +174,32 @@ const Post = ({
     setIsPostUploadModalOpen(false);
   };
 
+  const handleLike = async () => {
+    try {
+      const { response } = await likesService.addLike(_id);
+      if (response.status === HttpStatusCode.Created) {
+        setLikesCountState((prevCount) => prevCount + 1);
+        setLikedByCurrentUserState(true);
+      }
+    } catch {
+      toast.error('Error liking post');
+    }
+  };
+
+  const handleRemoveLike = async () => {
+    try {
+      const { response } = await likesService.removeLike(_id);
+      if (response.status === HttpStatusCode.Ok) {
+        setLikesCountState((prevCount) => prevCount - 1);
+        setLikedByCurrentUserState(false);
+      }
+    } catch {
+      toast.error('Error unliking post');
+    }
+  };
+
   return (
-    <StyledCard
-      variant='outlined'
-      tabIndex={0}
-      onClick={() => !shouldExtraDetails && navigate(`/post/${postState._id}`)}
-    >
+    <StyledCard variant='outlined' tabIndex={0}>
       <User
         post={postState}
         user={postedBy}
@@ -279,7 +216,14 @@ const Post = ({
           aspectRatio: '16 / 9',
           borderBottom: '1px solid',
           borderColor: 'divider',
+          '&:hover': {
+            backgroundColor: 'transparent',
+            cursor: 'pointer',
+          },
         }}
+        onClick={() =>
+          !shouldExtraDetails && navigate(`/post/${postState._id}`)
+        }
       />
       <StyledCardContent>
         <Typography
@@ -296,11 +240,14 @@ const Post = ({
           {content}
         </StyledTypography>
       </StyledCardContent>
-      <BottomBar
-        likesCount={likesCount}
+      <PostBottomBar
+        likesCount={likesCountState}
         commentsCount={commentsCount}
         rating={rating}
+        likedByCurrentUser={likedByCurrentUserState}
         shouldExtraDetails={shouldExtraDetails}
+        handleLike={handleLike}
+        handleRemoveLike={handleRemoveLike}
       />
     </StyledCard>
   );

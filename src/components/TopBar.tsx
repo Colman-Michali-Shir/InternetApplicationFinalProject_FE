@@ -25,7 +25,7 @@ import {
   Upload,
 } from '@mui/icons-material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { useUserContext } from '../UserContext';
+import { useUserContext } from '../Context/UserContext';
 import ScrollTop from './Scroll/ScrollTop';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -66,6 +66,7 @@ const TopBar = ({
     setIsDrawerOpen(false);
     setIsPostUploadModalOpen(true);
   };
+
   return (
     <>
       <AppBar

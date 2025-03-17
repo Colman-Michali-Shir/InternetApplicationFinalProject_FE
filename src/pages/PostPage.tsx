@@ -38,24 +38,24 @@ const PostPage = () => {
 
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="70vh"
+      display='flex'
+      justifyContent='center'
+      alignItems='center'
+      minHeight='70vh'
     >
       {loading ? (
         <CircularProgress />
       ) : postState ? (
         <Post post={postState} shouldExtraDetails={true} />
       ) : (
-        <Box textAlign="center">
+        <Box textAlign='center'>
           <ErrorOutline sx={{ fontSize: 50, color: 'red' }} />
-          <Typography variant="h6" color="error" sx={{ marginBottom: 2 }}>
+          <Typography variant='h6' color='error' sx={{ marginBottom: 2 }}>
             Post Not Found
           </Typography>
           <Button
-            variant="contained"
-            color="primary"
+            variant='contained'
+            color='primary'
             onClick={() => navigate('/')}
           >
             Back to Home

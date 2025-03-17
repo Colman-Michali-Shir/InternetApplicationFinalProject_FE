@@ -17,7 +17,7 @@ import { toast } from 'react-toastify';
 import userService from '../../services/userService';
 import postsService, { IPost, IPostSave } from '../../services/postsService';
 import { HttpStatusCode } from 'axios';
-import { useUserContext } from '../../UserContext';
+import { useUserContext } from '../../Context/UserContext';
 
 interface FormData {
   title?: string;

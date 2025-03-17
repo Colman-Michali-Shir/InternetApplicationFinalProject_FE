@@ -7,7 +7,7 @@ import HomePage from './pages/HomePage';
 import TopBar from './components/TopBar';
 import ProfilePage from './pages/ProfilePage';
 import userService, { IUser } from './services/userService';
-import { useUserContext } from './UserContext';
+import { useUserContext } from './Context/UserContext';
 import RecommendationPage from './pages/RecommendationPage';
 import PostPage from './pages/PostPage';
 import SavePostModal from './components/Post/SavePostModal';

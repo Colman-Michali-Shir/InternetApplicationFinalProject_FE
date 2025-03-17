@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IUser } from './services/userService';
+import { IUser } from '../services/userService';
 
 interface User {
   username: string;
@@ -13,13 +13,19 @@ interface UserContextType {
   setUserContext: (user: User | null) => void;
   updateContextUsername: (username: string) => void;
   updateContextProfileImage: (profileImage: string) => void;
-  storeUserSession: (userData: { accessToken: string; refreshToken: string; user: IUser }) => void;
+  storeUserSession: (userData: {
+    accessToken: string;
+    refreshToken: string;
+    user: IUser;
+  }) => void;
   clearUserSession: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [userContext, setUserContext] = useState<User | null>(null);
   const navigate = useNavigate();
 
