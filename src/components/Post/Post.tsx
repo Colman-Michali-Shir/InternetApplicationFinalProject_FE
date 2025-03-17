@@ -175,30 +175,26 @@ const Post = ({
   };
 
   const handleLike = async () => {
-    if (_id) {
-      try {
-        const { response } = await likesService.addLike(_id);
-        if (response.status === HttpStatusCode.Created) {
-          setLikesCountState((prevCount) => prevCount + 1);
-          setLikedByCurrentUserState(true);
-        }
-      } catch {
-        toast.error('Error liking post');
+    try {
+      const { response } = await likesService.addLike(_id);
+      if (response.status === HttpStatusCode.Created) {
+        setLikesCountState((prevCount) => prevCount + 1);
+        setLikedByCurrentUserState(true);
       }
+    } catch {
+      toast.error('Error liking post');
     }
   };
 
   const handleRemoveLike = async () => {
-    if (_id) {
-      try {
-        const { response } = await likesService.removeLike(_id);
-        if (response.status === HttpStatusCode.Ok) {
-          setLikesCountState((prevCount) => prevCount - 1);
-          setLikedByCurrentUserState(false);
-        }
-      } catch {
-        toast.error('Error unliking post');
+    try {
+      const { response } = await likesService.removeLike(_id);
+      if (response.status === HttpStatusCode.Ok) {
+        setLikesCountState((prevCount) => prevCount - 1);
+        setLikedByCurrentUserState(false);
       }
+    } catch {
+      toast.error('Error unliking post');
     }
   };
 
