@@ -16,7 +16,6 @@ const App = () => {
   const { userContext, setUserContext, storeUserSession } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
-  const [shouldReFetch, setShouldReFetch] = useState(false);
 
   const navigate = useNavigate();
 
@@ -101,10 +100,7 @@ const App = () => {
               path='/'
               element={
                 userContext?._id ? (
-                  <HomePage
-                    shouldReFetch={shouldReFetch}
-                    setShouldReFetch={setShouldReFetch}
-                  />
+                  <HomePage />
                 ) : (
                   <Navigate to='/login' replace />
                 )
@@ -114,10 +110,7 @@ const App = () => {
               path='/profile'
               element={
                 userContext?._id ? (
-                  <ProfilePage
-                    shouldReFetch={shouldReFetch}
-                    setShouldReFetch={setShouldReFetch}
-                  />
+                  <ProfilePage />
                 ) : (
                   <Navigate to='/login' replace />
                 )
@@ -149,7 +142,6 @@ const App = () => {
       <SavePostModal
         open={isPostUploadModalOpen}
         handleClose={handleUploadClose}
-        setShouldReFetch={setShouldReFetch}
       />
     </>
   );

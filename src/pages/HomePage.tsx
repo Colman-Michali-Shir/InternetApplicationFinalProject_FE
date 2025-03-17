@@ -1,19 +1,9 @@
 import PostsList from '../components/Post/PostsList';
 
-const HomePage = ({
-  shouldReFetch,
-  setShouldReFetch,
-}: {
-  shouldReFetch: boolean;
-  setShouldReFetch: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const HomePage = () => {
   return (
     <>
-      <PostsList
-        shouldGetAll={true}
-        shouldReFetch={shouldReFetch}
-        setShouldReFetch={setShouldReFetch}
-      />
+      <PostsList shouldGetAll={true} />
     </>
   );
 };
