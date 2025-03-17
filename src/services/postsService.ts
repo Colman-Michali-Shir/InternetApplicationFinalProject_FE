@@ -11,9 +11,11 @@ export interface IPost {
   rating: number;
   createdAt?: Date;
   updatedAt?: Date;
+  likedByCurrentUser: boolean;
 }
 
-export interface IPostSave extends Omit<IPost, 'postedBy'> {
+export interface IPostSave
+  extends Omit<IPost, 'postedBy' | 'likedByCurrentUser'> {
   postedBy: string;
 }
 
