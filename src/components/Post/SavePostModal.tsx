@@ -37,7 +37,6 @@ const SavePostModal = ({
   open: boolean;
   handleClose: () => void;
   setPostState?: React.Dispatch<React.SetStateAction<IPost>>;
-  setShouldReFetch?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { register, handleSubmit, watch, reset, control } = useForm<FormData>({
     defaultValues: {
