@@ -31,11 +31,13 @@ const SavePostModal = ({
   open,
   handleClose,
   setPostState,
+  setShouldReFetch,
 }: {
   post?: IPost;
   open: boolean;
   handleClose: () => void;
   setPostState?: React.Dispatch<React.SetStateAction<IPost>>;
+  setShouldReFetch?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { register, handleSubmit, watch, reset, control } = useForm<FormData>({
     defaultValues: {
@@ -109,6 +111,7 @@ const SavePostModal = ({
               .response;
             if (createPostResponse.status === HttpStatusCode.Created) {
               toast.success('Upload a post successfully');
+              setShouldReFetch?.(true);
               handleCloseModal();
             } else {
               toast.error('Failed to upload post');

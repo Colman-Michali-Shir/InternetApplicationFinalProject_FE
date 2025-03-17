@@ -10,10 +10,13 @@ import userService, { IUser } from './services/userService';
 import { useUserContext } from './UserContext';
 import RecommendationPage from './pages/RecommendationPage';
 import PostPage from './pages/PostPage';
+import SavePostModal from './components/Post/SavePostModal';
 
 const App = () => {
   const { userContext, setUserContext, storeUserSession } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
+  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
+  const [shouldReFetch, setShouldReFetch] = useState(false);
 
   const navigate = useNavigate();
 
@@ -57,13 +60,19 @@ const App = () => {
     fetchUser();
   }, []);
 
+  const handleUploadClose = () => {
+    setIsPostUploadModalOpen(false);
+  };
+
   return (
     <>
-      {userContext?._id && <TopBar />}
+      {userContext?._id && (
+        <TopBar setIsPostUploadModalOpen={setIsPostUploadModalOpen} />
+      )}
       <CssBaseline enableColorScheme />
       <Container
-        maxWidth="lg"
-        component="main"
+        maxWidth='lg'
+        component='main'
         sx={{ display: 'flex', flexDirection: 'column' }}
       >
         {isLoading ? (
@@ -79,58 +88,69 @@ const App = () => {
         ) : (
           <Routes>
             <Route
-              path="/login"
+              path='/login'
               element={
                 userContext?._id ? (
-                  <Navigate to="/" replace />
+                  <Navigate to='/' replace />
                 ) : (
                   <Login handleLoginSuccess={handleLoginSuccess} />
                 )
               }
             />
             <Route
-              path="/"
+              path='/'
               element={
                 userContext?._id ? (
-                  <HomePage />
+                  <HomePage
+                    shouldReFetch={shouldReFetch}
+                    setShouldReFetch={setShouldReFetch}
+                  />
                 ) : (
-                  <Navigate to="/login" replace />
+                  <Navigate to='/login' replace />
                 )
               }
             />
             <Route
-              path="/profile"
+              path='/profile'
               element={
                 userContext?._id ? (
-                  <ProfilePage />
+                  <ProfilePage
+                    shouldReFetch={shouldReFetch}
+                    setShouldReFetch={setShouldReFetch}
+                  />
                 ) : (
-                  <Navigate to="/login" replace />
+                  <Navigate to='/login' replace />
                 )
               }
             />
             <Route
-              path="/post/:id"
+              path='/post/:id'
               element={
                 userContext?._id ? (
                   <PostPage />
                 ) : (
-                  <Navigate to="/login" replace />
+                  <Navigate to='/login' replace />
                 )
               }
             />
             <Route
-              path="/recommendation"
+              path='/recommendation'
               element={
                 userContext?._id ? (
                   <RecommendationPage />
                 ) : (
-                  <Navigate to="/login" replace />
+                  <Navigate to='/login' replace />
                 )
               }
             />
           </Routes>
         )}
       </Container>
+      <SavePostModal
+        open={isPostUploadModalOpen}
+        handleClose={handleUploadClose}
+        setShouldReFetch={setShouldReFetch}
+      />
     </>
   );
 };

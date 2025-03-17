@@ -27,7 +27,6 @@ import {
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../UserContext';
 import ScrollTop from './Scroll/ScrollTop';
-import SavePostModal from './Post/SavePostModal';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -44,9 +43,12 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-const TopBar = () => {
+const TopBar = ({
+  setIsPostUploadModalOpen,
+}: {
+  setIsPostUploadModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
   const { userContext, clearUserSession } = useUserContext();
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -112,10 +114,6 @@ const TopBar = () => {
                 >
                   <Recommend />
                 </IconButton>
-                <SavePostModal
-                  open={isPostUploadModalOpen}
-                  handleClose={() => setIsPostUploadModalOpen(false)}
-                />
               </Box>
             </Box>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Grid2, Typography, CircularProgress } from '@mui/material';
+import { Box, Grid2, CircularProgress } from '@mui/material';
 import { HttpStatusCode } from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { toast } from 'react-toastify';
@@ -8,20 +8,32 @@ import { IPost } from '../../services/postsService';
 import postService from '../../services/postsService';
 import { useUserContext } from '../../UserContext';
 
-const PostsList = ({ shouldGetAll = false }: { shouldGetAll: boolean }) => {
+const PostsList = ({
+  shouldGetAll = false,
+  shouldReFetch,
+  setShouldReFetch,
+}: {
+  shouldGetAll: boolean;
+  shouldReFetch: boolean;
+  setShouldReFetch: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const { userContext } = useUserContext();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [lastPostId, setLastPostId] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchPosts = async () => {
+    if (loading) return;
+
+    setLoading(true);
+
     const userId = shouldGetAll ? undefined : userContext?._id;
     try {
-      const response = (await postService.getPosts(userId, lastPostId))
-        .response;
+      const { response } = await postService.getPosts(userId, lastPostId);
       if (response.status === HttpStatusCode.Ok) {
         const newPosts = response.data.posts;
-        setPosts((prevPosts) => [...prevPosts, ...response.data.posts]);
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
         setLastPostId(
           newPosts.length > 0 ? newPosts[newPosts.length - 1]._id : null
         );
@@ -31,17 +43,36 @@ const PostsList = ({ shouldGetAll = false }: { shouldGetAll: boolean }) => {
       }
     } catch {
       toast.error('Error fetching posts.');
+    } finally {
+      setLoading(false);
+      setShouldReFetch(false);
     }
+  };
+
+  const clearState = () => {
+    setPosts(() => []);
+    setLastPostId(undefined);
+    setHasMore(false);
   };
 
   useEffect(() => {
     fetchPosts();
     return () => {
-      setPosts([]);
-      setLastPostId(undefined);
-      setHasMore(false);
+      clearState();
     };
   }, []);
+
+  useEffect(() => {
+    if (shouldReFetch) {
+      clearState();
+    }
+  }, [shouldReFetch]);
+
+  useEffect(() => {
+    if (shouldReFetch && posts.length === 0) {
+      fetchPosts();
+    }
+  }, [shouldReFetch, posts]);
 
   return (
     <>
@@ -51,13 +82,8 @@ const PostsList = ({ shouldGetAll = false }: { shouldGetAll: boolean }) => {
         hasMore={hasMore}
         loader={
           <Box display='flex' justifyContent='center' mt={2}>
-            <CircularProgress />
+            {loading && <CircularProgress />}
           </Box>
-        }
-        endMessage={
-          <Typography align='center' mt={2} color='textSecondary'>
-            No more posts to show 🎉
-          </Typography>
         }
         style={{ overflow: 'visible' }}
       >
