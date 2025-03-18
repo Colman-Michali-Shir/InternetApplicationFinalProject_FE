@@ -18,6 +18,7 @@ import userService from '../../services/userService';
 import postsService, { IPost, IPostSave } from '../../services/postsService';
 import { HttpStatusCode } from 'axios';
 import { useUserContext } from '../../Context/UserContext';
+import { usePostsContext } from '../../Context/PostsContext';
 
 interface FormData {
   title?: string;
@@ -49,6 +50,7 @@ const SavePostModal = ({
   const rating = watch('rating');
 
   const { userContext } = useUserContext();
+  const { addPost } = usePostsContext();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(
     post?.image || null
@@ -108,6 +110,11 @@ const SavePostModal = ({
             const createPostResponse = (await postsService.createPost(postData))
               .response;
             if (createPostResponse.status === HttpStatusCode.Created) {
+              const newPost: IPost = {
+                ...createPostResponse.data,
+                postedBy: userContext,
+              };
+              addPost(newPost);
               toast.success('Upload a post successfully');
               handleCloseModal();
             } else {

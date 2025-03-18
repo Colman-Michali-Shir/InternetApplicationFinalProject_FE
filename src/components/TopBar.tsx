@@ -27,7 +27,7 @@ import {
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../Context/UserContext';
 import ScrollTop from './Scroll/ScrollTop';
-import SavePostModal from './Post/SavePostModal';
+import SavePostModal from '../components/Post/SavePostModal';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -46,8 +46,8 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 
 const TopBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
   const { userContext, clearUserSession } = useUserContext();
+  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setIsDrawerOpen(newOpen);
@@ -63,6 +63,10 @@ const TopBar = () => {
   const handleUpload = () => {
     setIsDrawerOpen(false);
     setIsPostUploadModalOpen(true);
+  };
+
+  const handleUploadClose = () => {
+    setIsPostUploadModalOpen(false);
   };
 
   return (
@@ -109,14 +113,10 @@ const TopBar = () => {
                   color='primary'
                   aria-label='Recommendation'
                   component={RouterLink}
-                  to='/recommendation'
+                  to='/request-recommendation'
                 >
                   <Recommend />
                 </IconButton>
-                <SavePostModal
-                  open={isPostUploadModalOpen}
-                  handleClose={() => setIsPostUploadModalOpen(false)}
-                />
               </Box>
             </Box>
 
@@ -194,7 +194,7 @@ const TopBar = () => {
                   <MenuItem onClick={handleUpload}>Upload</MenuItem>
                   <MenuItem
                     component={RouterLink}
-                    to='/recommendation'
+                    to='/request-recommendation'
                     onClick={toggleDrawer(false)}
                   >
                     Recommendation
@@ -230,6 +230,11 @@ const TopBar = () => {
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
+
+      <SavePostModal
+        open={isPostUploadModalOpen}
+        handleClose={handleUploadClose}
+      />
     </>
   );
 };

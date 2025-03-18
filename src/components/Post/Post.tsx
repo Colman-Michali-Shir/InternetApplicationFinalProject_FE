@@ -50,7 +50,7 @@ const User = ({
     try {
       const { response } = await postsService.deletePost(post._id);
       if (response.status === HttpStatusCode.Ok) {
-        navigate('/');
+        navigate(-1);
       }
     } catch (error) {
       console.error('Error deleting post:', error);
