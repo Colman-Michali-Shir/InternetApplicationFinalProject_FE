@@ -9,9 +9,9 @@ interface PostContextType {
   setEndOfList: (flage: boolean) => void;
 }
 
-const PostContext = createContext<PostContextType | undefined>(undefined);
+const PostsContext = createContext<PostContextType | undefined>(undefined);
 
-export const PostProvider = ({ children }: { children: React.ReactNode }) => {
+export const PostsProvider = ({ children }: { children: React.ReactNode }) => {
   const [posts, setPosts] = useState<IPost[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(false);
 
@@ -33,7 +33,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <PostContext.Provider
+    <PostsContext.Provider
       value={{
         postsContext: posts,
         addPost,
@@ -43,12 +43,12 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
-    </PostContext.Provider>
+    </PostsContext.Provider>
   );
 };
 
-export const usePostContext = () => {
-  const context = useContext(PostContext);
+export const usePostsContext = () => {
+  const context = useContext(PostsContext);
   if (!context) {
     throw new Error('usePostContext must be used within a PostProvider');
   }

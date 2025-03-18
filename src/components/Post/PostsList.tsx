@@ -6,12 +6,12 @@ import { toast } from 'react-toastify';
 import Post from '../../components/Post/Post';
 import postService from '../../services/postsService';
 import { useUserContext } from '../../Context/UserContext';
-import { usePostContext } from '../../Context/PostsContext';
+import { usePostsContext } from '../../Context/PostsContext';
 
 const PostsList = ({ shouldGetAll = false }: { shouldGetAll: boolean }) => {
   const { userContext } = useUserContext();
   const { postsContext, addMultiplePosts, clearStates, setEndOfList } =
-    usePostContext();
+    usePostsContext();
   const [lastPostId, setLastPostId] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);

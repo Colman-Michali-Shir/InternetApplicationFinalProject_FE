@@ -10,12 +10,10 @@ import userService, { IUser } from './services/userService';
 import { useUserContext } from './Context/UserContext';
 import RecommendationPage from './pages/RecommendationPage';
 import PostPage from './pages/PostPage';
-import SavePostModal from './components/Post/SavePostModal';
 
 const App = () => {
   const { userContext, setUserContext, storeUserSession } = useUserContext();
   const [isLoading, setIsLoading] = useState(true);
-  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -59,15 +57,9 @@ const App = () => {
     fetchUser();
   }, []);
 
-  const handleUploadClose = () => {
-    setIsPostUploadModalOpen(false);
-  };
-
   return (
     <>
-      {userContext?._id && (
-        <TopBar setIsPostUploadModalOpen={setIsPostUploadModalOpen} />
-      )}
+      {userContext?._id && <TopBar />}
       <CssBaseline enableColorScheme />
       <Container
         maxWidth='lg'
@@ -139,10 +131,6 @@ const App = () => {
           </Routes>
         )}
       </Container>
-      <SavePostModal
-        open={isPostUploadModalOpen}
-        handleClose={handleUploadClose}
-      />
     </>
   );
 };

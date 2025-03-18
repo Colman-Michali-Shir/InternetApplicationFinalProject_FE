@@ -18,7 +18,7 @@ import userService from '../../services/userService';
 import postsService, { IPost, IPostSave } from '../../services/postsService';
 import { HttpStatusCode } from 'axios';
 import { useUserContext } from '../../Context/UserContext';
-import { usePostContext } from '../../Context/PostsContext';
+import { usePostsContext } from '../../Context/PostsContext';
 
 interface FormData {
   title?: string;
@@ -50,7 +50,7 @@ const SavePostModal = ({
   const rating = watch('rating');
 
   const { userContext } = useUserContext();
-  const { addPost } = usePostContext();
+  const { addPost } = usePostsContext();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(
     post?.image || null
