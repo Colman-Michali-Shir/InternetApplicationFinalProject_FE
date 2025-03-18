@@ -119,7 +119,7 @@ const App = () => {
               }
             />
             <Route
-              path='/recommendation'
+              path='/request-recommendation'
               element={
                 userContext?._id ? (
                   <RecommendationPage />

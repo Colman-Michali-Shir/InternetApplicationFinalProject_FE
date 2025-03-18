@@ -113,7 +113,7 @@ const TopBar = () => {
                   color='primary'
                   aria-label='Recommendation'
                   component={RouterLink}
-                  to='/recommendation'
+                  to='/request-recommendation'
                 >
                   <Recommend />
                 </IconButton>
@@ -194,7 +194,7 @@ const TopBar = () => {
                   <MenuItem onClick={handleUpload}>Upload</MenuItem>
                   <MenuItem
                     component={RouterLink}
-                    to='/recommendation'
+                    to='/request-recommendation'
                     onClick={toggleDrawer(false)}
                   >
                     Recommendation
