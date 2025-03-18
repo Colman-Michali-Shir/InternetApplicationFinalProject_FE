@@ -104,8 +104,8 @@ const ProfileData = () => {
       } else {
         setUsername(userContext?.username || '');
       }
-      setErrorMessage(null);
 
+      setErrorMessage(null);
       setIsEditing(false);
     } catch (error) {
       if (error instanceof AxiosError) {
