@@ -6,7 +6,7 @@ interface PostContextType {
   addPost: (newPost: IPost) => void;
   addMultiplePosts: (newPosts: IPost[]) => void;
   clearStates: () => void;
-  setEndOfList: (flage: boolean) => void;
+  setEndOfList: (hasMore: boolean) => void;
 }
 
 const PostsContext = createContext<PostContextType | undefined>(undefined);
@@ -28,8 +28,8 @@ export const PostsProvider = ({ children }: { children: React.ReactNode }) => {
     setHasMore(false);
   };
 
-  const setEndOfList = (flag: boolean) => {
-    setHasMore(flag);
+  const setEndOfList = (hasMore: boolean) => {
+    setHasMore(hasMore);
   };
 
   return (
