@@ -18,7 +18,6 @@ import userService from '../../services/userService';
 import postsService, { IPost, IPostSave } from '../../services/postsService';
 import { HttpStatusCode } from 'axios';
 import { useUserContext } from '../../Context/UserContext';
-import { usePostsContext } from '../../Context/PostsContext';
 
 interface FormData {
   title?: string;
@@ -32,11 +31,13 @@ const SavePostModal = ({
   open,
   handleClose,
   setPostState,
+  addPostToList,
 }: {
   post?: IPost;
   open: boolean;
   handleClose: () => void;
   setPostState?: React.Dispatch<React.SetStateAction<IPost>>;
+  addPostToList?: (post: IPost) => void;
 }) => {
   const { register, handleSubmit, watch, reset, control } = useForm<FormData>({
     defaultValues: {
@@ -50,10 +51,9 @@ const SavePostModal = ({
   const rating = watch('rating');
 
   const { userContext } = useUserContext();
-  const { addPost } = usePostsContext();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(
-    post?.image || null
+    post?.image || null,
   );
 
   useEffect(() => {
@@ -114,7 +114,7 @@ const SavePostModal = ({
                 ...createPostResponse.data,
                 postedBy: userContext,
               };
-              addPost(newPost);
+              addPostToList?.(newPost);
               toast.success('Upload a post successfully');
               handleCloseModal();
             } else {
@@ -129,66 +129,66 @@ const SavePostModal = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth='sm'>
-      <DialogTitle color='primary' sx={{ fontWeight: 'bold' }}>
+    <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="sm">
+      <DialogTitle color="primary" sx={{ fontWeight: 'bold' }}>
         {post ? 'Edit Post' : 'Upload a Post'}
       </DialogTitle>
       <DialogContent>
-        <Box component='form'>
+        <Box component="form">
           <TextField
             {...register('title')}
-            label='Enter restaurant name'
+            label="Enter restaurant name"
             fullWidth
-            margin='normal'
+            margin="normal"
             required
           />
           <TextField
             {...register('content')}
-            label='You can provide more details'
+            label="You can provide more details"
             fullWidth
-            margin='normal'
+            margin="normal"
             multiline
             rows={4}
           />
           <Typography sx={{ mt: 2 }}>Rating</Typography>
           <Controller
-            name='rating'
+            name="rating"
             control={control}
             render={({ field }) => <Rating {...field} />}
           />
-          <Box mt={2} display='flex' alignItems='center'>
+          <Box mt={2} display="flex" alignItems="center">
             <input
               {...register('img')}
-              type='file'
-              accept='image/png, image/jpeg'
+              type="file"
+              accept="image/png, image/jpeg"
               hidden
-              id='upload-button'
+              id="upload-button"
             />
-            <label htmlFor='upload-button'>
-              <IconButton color='primary' component='span'>
+            <label htmlFor="upload-button">
+              <IconButton color="primary" component="span">
                 <PhotoCamera />
               </IconButton>
             </label>
             {selectedImage && (
               <Box
-                component='img'
+                component="img"
                 src={selectedImage}
                 sx={{ width: '50%', height: '50%' }}
-                alt='Uploaded Image'
+                alt="Uploaded Image"
               />
             )}
           </Box>
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleCloseModal} color='inherit'>
+        <Button onClick={handleCloseModal} color="inherit">
           Cancel
         </Button>
         <Button
           disabled={isSubmitDisabled}
           onClick={handleSubmit(onSubmit)}
-          variant='contained'
-          color='primary'
+          variant="contained"
+          color="primary"
         >
           {post ? 'Edit' : 'Submit'}
         </Button>

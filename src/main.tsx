@@ -6,7 +6,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { UserProvider } from './Context/UserContext';
-import { PostsProvider } from './Context/PostsContext';
 import App from './App';
 import theme from './theme';
 
@@ -17,13 +16,11 @@ createRoot(document.getElementById('root')!).render(
         <CssBaseline />
         <BrowserRouter>
           <UserProvider>
-            <PostsProvider>
-              <ToastContainer position='bottom-left' theme='colored' />
-              <App />
-            </PostsProvider>
+            <ToastContainer position="bottom-left" theme="colored" />
+            <App />
           </UserProvider>
         </BrowserRouter>
       </ThemeProvider>
     </StrictMode>
-  </GoogleOAuthProvider>
+  </GoogleOAuthProvider>,
 );

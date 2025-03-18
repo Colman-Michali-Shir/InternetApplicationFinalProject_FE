@@ -62,8 +62,8 @@ const App = () => {
       {userContext?._id && <TopBar />}
       <CssBaseline enableColorScheme />
       <Container
-        maxWidth='lg'
-        component='main'
+        maxWidth="lg"
+        component="main"
         sx={{ display: 'flex', flexDirection: 'column' }}
       >
         {isLoading ? (
@@ -79,52 +79,52 @@ const App = () => {
         ) : (
           <Routes>
             <Route
-              path='/login'
+              path="/login"
               element={
                 userContext?._id ? (
-                  <Navigate to='/' replace />
+                  <Navigate to="/" replace />
                 ) : (
                   <Login handleLoginSuccess={handleLoginSuccess} />
                 )
               }
             />
             <Route
-              path='/'
+              path="/"
               element={
                 userContext?._id ? (
                   <HomePage />
                 ) : (
-                  <Navigate to='/login' replace />
+                  <Navigate to="/login" replace />
                 )
               }
             />
             <Route
-              path='/profile'
+              path="/profile"
               element={
                 userContext?._id ? (
                   <ProfilePage />
                 ) : (
-                  <Navigate to='/login' replace />
+                  <Navigate to="/login" replace />
                 )
               }
             />
             <Route
-              path='/post/:id'
+              path="/post/:id"
               element={
                 userContext?._id ? (
                   <PostPage />
                 ) : (
-                  <Navigate to='/login' replace />
+                  <Navigate to="/login" replace />
                 )
               }
             />
             <Route
-              path='/request-recommendation'
+              path="/request-recommendation"
               element={
                 userContext?._id ? (
                   <RecommendationPage />
                 ) : (
-                  <Navigate to='/login' replace />
+                  <Navigate to="/login" replace />
                 )
               }
             />

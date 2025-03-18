@@ -22,12 +22,10 @@ import {
   AccountCircle,
   Logout,
   Recommend,
-  Upload,
 } from '@mui/icons-material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useUserContext } from '../Context/UserContext';
 import ScrollTop from './Scroll/ScrollTop';
-import SavePostModal from '../components/Post/SavePostModal';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
@@ -47,7 +45,6 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 const TopBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { userContext, clearUserSession } = useUserContext();
-  const [isPostUploadModalOpen, setIsPostUploadModalOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setIsDrawerOpen(newOpen);
@@ -60,19 +57,10 @@ const TopBar = () => {
     clearUserSession();
   };
 
-  const handleUpload = () => {
-    setIsDrawerOpen(false);
-    setIsPostUploadModalOpen(true);
-  };
-
-  const handleUploadClose = () => {
-    setIsPostUploadModalOpen(false);
-  };
-
   return (
     <>
       <AppBar
-        position='static'
+        position="static"
         enableColorOnDark
         sx={{
           boxShadow: 0,
@@ -81,39 +69,33 @@ const TopBar = () => {
           mt: 'calc(var(--template-frame-height, 0px) + 28px)',
         }}
       >
-        <Container maxWidth='lg'>
-          <StyledToolbar variant='dense' disableGutters>
+        <Container maxWidth="lg">
+          <StyledToolbar variant="dense" disableGutters>
             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', px: 0 }}>
               <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                 <IconButton
                   onClick={handleLogout}
-                  color='primary'
-                  aria-label='Logout'
+                  color="primary"
+                  aria-label="Logout"
                   component={RouterLink}
-                  to='/login'
+                  to="/login"
                 >
                   <Logout />
                 </IconButton>
                 <IconButton
-                  color='primary'
-                  aria-label='Home'
+                  color="primary"
+                  aria-label="Home"
                   component={RouterLink}
-                  to='/'
+                  to="/"
                 >
                   <Home />
                 </IconButton>
+
                 <IconButton
-                  color='primary'
-                  aria-label='Upload'
-                  onClick={() => setIsPostUploadModalOpen(true)}
-                >
-                  <Upload />
-                </IconButton>
-                <IconButton
-                  color='primary'
-                  aria-label='Recommendation'
+                  color="primary"
+                  aria-label="Recommendation"
                   component={RouterLink}
-                  to='/request-recommendation'
+                  to="/request-recommendation"
                 >
                   <Recommend />
                 </IconButton>
@@ -126,7 +108,7 @@ const TopBar = () => {
                 flexGrow: { xs: 1, md: 0 },
               }}
             >
-              <Typography variant='h6' fontWeight={600} color='primary'>
+              <Typography variant="h6" fontWeight={600} color="primary">
                 Foodie Finder
               </Typography>
             </Box>
@@ -141,15 +123,15 @@ const TopBar = () => {
               }}
             >
               <IconButton
-                color='primary'
-                aria-label='Profile'
+                color="primary"
+                aria-label="Profile"
                 component={RouterLink}
-                to='/profile'
+                to="/profile"
               >
                 {userContext?.profileImage ? (
                   <Avatar
                     src={userContext.profileImage}
-                    alt='Profile'
+                    alt="Profile"
                     sx={{ width: 25, height: 25 }}
                   />
                 ) : (
@@ -159,11 +141,11 @@ const TopBar = () => {
             </Box>
 
             <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
-              <IconButton aria-label='Menu button' onClick={toggleDrawer(true)}>
+              <IconButton aria-label="Menu button" onClick={toggleDrawer(true)}>
                 <Menu />
               </IconButton>
               <Drawer
-                anchor='top'
+                anchor="top"
                 open={isDrawerOpen}
                 onClose={toggleDrawer(false)}
                 PaperProps={{
@@ -186,15 +168,14 @@ const TopBar = () => {
 
                   <MenuItem
                     component={RouterLink}
-                    to='/'
+                    to="/"
                     onClick={toggleDrawer(false)}
                   >
                     Home
                   </MenuItem>
-                  <MenuItem onClick={handleUpload}>Upload</MenuItem>
                   <MenuItem
                     component={RouterLink}
-                    to='/request-recommendation'
+                    to="/request-recommendation"
                     onClick={toggleDrawer(false)}
                   >
                     Recommendation
@@ -202,18 +183,18 @@ const TopBar = () => {
                   <MenuItem
                     onClick={handleLogout}
                     component={RouterLink}
-                    to='/login'
+                    to="/login"
                   >
                     Logout
                   </MenuItem>
                   <Divider sx={{ my: 3 }} />
                   <MenuItem>
                     <Button
-                      color='primary'
-                      variant='contained'
+                      color="primary"
+                      variant="contained"
                       fullWidth
                       component={RouterLink}
-                      to='/profile'
+                      to="/profile"
                     >
                       Profile
                     </Button>
@@ -224,17 +205,12 @@ const TopBar = () => {
           </StyledToolbar>
         </Container>
       </AppBar>
-      <Toolbar id='back-to-top-anchor' />
+      <Toolbar id="back-to-top-anchor" />
       <ScrollTop>
-        <Fab size='small' aria-label='scroll back to top'>
+        <Fab size="small" aria-label="scroll back to top">
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
-
-      <SavePostModal
-        open={isPostUploadModalOpen}
-        handleClose={handleUploadClose}
-      />
     </>
   );
 };
