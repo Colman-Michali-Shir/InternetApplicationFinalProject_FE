@@ -11,16 +11,16 @@ import theme from './theme';
 
 createRoot(document.getElementById('root')!).render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-    {/* <StrictMode> */}
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <UserProvider>
-          <ToastContainer position="bottom-left" theme="colored" />
-          <App />
-        </UserProvider>
-      </BrowserRouter>
-    </ThemeProvider>
-    {/* </StrictMode> */}
-  </GoogleOAuthProvider>,
+    <StrictMode>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <UserProvider>
+            <ToastContainer position='bottom-left' theme='colored' />
+            <App />
+          </UserProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </StrictMode>
+  </GoogleOAuthProvider>
 );
