@@ -31,7 +31,7 @@ const ProfileData = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleProfilePicChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -64,7 +64,7 @@ const ProfileData = () => {
       const imageUrl = uploadImageResponse.data.url;
       const updateUserRes = await userService.updateProfileImage(
         userId,
-        imageUrl,
+        imageUrl
       );
       if (updateUserRes.response.status !== HttpStatusCode.Ok) {
         toast.error('Failed to update profile image');
@@ -126,14 +126,15 @@ const ProfileData = () => {
   const handleCancleEdit = () => {
     setUsername(userContext?.username || '');
     setIsEditing(false);
+    setErrorMessage(null);
   };
 
   return (
-    <Box display="flex" alignItems="center" flexDirection="column">
-      <Box position="relative" display="inline-block">
+    <Box display='flex' alignItems='center' flexDirection='column'>
+      <Box position='relative' display='inline-block'>
         <Avatar src={profilePic} sx={{ width: 120, height: 120, mx: 'auto' }} />
         <IconButton
-          component="label"
+          component='label'
           sx={{
             position: 'absolute',
             bottom: 0,
@@ -142,11 +143,11 @@ const ProfileData = () => {
             border: '2px solid white',
           }}
         >
-          <CameraAlt fontSize="small" />
+          <CameraAlt fontSize='small' />
           <input
-            type="file"
+            type='file'
             hidden
-            accept="image/png, image/jpeg"
+            accept='image/png, image/jpeg'
             onChange={handleProfilePicChange}
           />
         </IconButton>
@@ -155,41 +156,41 @@ const ProfileData = () => {
       <Box mt={2}>
         {isEditing ? (
           <Paper
-            component="form"
+            component='form'
             sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}
           >
             <InputBase
               sx={{ ml: 1, flex: 1 }}
-              placeholder="Enter new username"
+              placeholder='Enter new username'
               value={username}
               onChange={(e) => handleUsernameChange(e.target.value)}
               inputProps={{ 'aria-label': 'username' }}
             />
             <IconButton
-              type="button"
-              aria-label="done"
+              type='button'
+              aria-label='done'
               onClick={handleUsernameSubmit}
             >
               <Done sx={{ color: green[500] }} />
             </IconButton>
             <IconButton
-              type="button"
-              aria-label="clear"
+              type='button'
+              aria-label='clear'
               onClick={handleCancleEdit}
             >
               <Clear sx={{ color: pink[500] }} />
             </IconButton>
           </Paper>
         ) : (
-          <Typography variant="h5" fontWeight="bold">
+          <Typography variant='h5' fontWeight='bold'>
             {username}
-            <IconButton onClick={() => setIsEditing(true)} size="small">
-              <Edit fontSize="small" />
+            <IconButton onClick={() => setIsEditing(true)} size='small'>
+              <Edit fontSize='small' />
             </IconButton>
           </Typography>
         )}
         {errorMessage && (
-          <Typography marginInlineStart={1} color="error">
+          <Typography marginInlineStart={1} color='error'>
             {errorMessage}
           </Typography>
         )}
@@ -201,7 +202,7 @@ const ProfileData = () => {
         sx={{ '& .MuiDialog-paper': { minWidth: 350 } }}
       >
         <DialogTitle>
-          <Typography fontWeight={600} color="primary" textAlign="center">
+          <Typography fontWeight={600} color='primary' textAlign='center'>
             New Profile Picture
           </Typography>
         </DialogTitle>
@@ -214,7 +215,7 @@ const ProfileData = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={handleCancelProfilePicChange} variant="outlined">
+          <Button onClick={handleCancelProfilePicChange} variant='outlined'>
             Cancel
           </Button>
           <Button autoFocus onClick={handleConfirmProfilePicChange}>
